@@ -1,0 +1,564 @@
+\documentclass{article}
+\usepackage[austrian]{babel}
+
+\input{epsf}
+
+\usepackage{graphicx}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+\usepackage{listings}
+\usepackage{xcolor}
+
+%% bibliography management
+\usepackage[backend=biber,style=numeric,sorting=ydnt]{biblatex}
+\addbibresource{biblio.bib} %Import the bibliography file
+
+
+\newcommand\inParens[1]{\texttt{(}#1\texttt{)}}
+\newcommand\inBraces[1]{\texttt{\{}#1\texttt{\}}}
+\newcommand\comma{\texttt{,}}
+\newcommand\semicolon{\texttt{;}}
+
+\title{Programming Project ``MINI''}
+
+\setlength{\oddsidemargin}{0mm}
+\setlength{\evensidemargin}{0mm}
+\setlength{\topmargin}{-1cm}
+\setlength{\textheight}{22.5cm}
+\setlength{\textwidth}{15cm}
+
+%\newcommand{\Nat}{\mbox{I\hspace{-0.1em}N}}
+\newcommand{\Nat}{\ifmmode{\sf I\hspace*{-0.3mm}N} \else\mbox{${\sf I\hspace*{-0.3mm}N$}}\fi}
+\newcommand{\nat}{\Nat}
+\newcommand{\Reell}{\ifmmode{\sf I\hspace*{-0.3mm}R} \else\mbox{${\sf I\hspace*{-0.3mm}R$}}\fi}
+\newcommand{\comment}[1]{}
+\newcommand{\eqdef}{\mbox{$=_{df}\,$}}
+
+\newcommand{\assnumber}{5}
+
+\pagestyle{empty}
+
+\begin{document}
+\large
+\thispagestyle{empty}
+\begin{center}
+  {\Large \textbf{185.A05 Advanced Functional Programming SS 21}}  \\ [1ex] 
+               Tuesday, 27 April 2021 \\ [1ex] 
+               {\Large \textbf{Assignment 5}} \\[.5ex]
+              {\Large \textbf{Programming Project MINI}} \\[.5ex]
+                 \textbf{All Chapters}  \\ [.75ex]
+           \textbf{Topic:} Building a Parser and Interpreter for MINI plus Implementing a Choice of Language/Interpreter Extensions \\[1ex]
+          \textbf{Submission deadline:}  Friday, 11 June 2021, 12am  (No second submission!) \\ [.5ex]
+%          (In case of need, this deadline will be extended (details posted via TISS))
+\end{center}
+
+\vspace{1ex}
+\noindent
+\noindent
+
+%\title{Programming Project ``MINI''}
+
+
+%\maketitle
+
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\noindent
+The goal of this project is to implement an interpreter for the programming language MINI. The project consists of two parts: the core language and the elective modular extensions. The core is mandatory but is only worth a portion of the points achievable in this project.
+
+In contrast to previous exercises, you are not asked to implement functions with given signatures. Instead, the functionality of the executed program is evaluated. You will have to design your own function signatures and data types and decide which data structures you want to use.
+
+The program should not be written in a single file, but as a \href{https://docs.haskellstack.org/en/stable/README/}{\code{stack}} or \href{https://cabal.readthedocs.io/en/3.4/}{\code{cabal}} project consisting of multiple modules. It is encouraged to use custom and predefined data structures, as well as external libraries and Haskell language extensions where appropriate. It is not required to get the project to run on g0.
+
+There will be a Q\&A session where help will be provided in case there are troubles with the selected technologies. The date will be announced via TISS news.
+
+\section{Grading}
+
+The parser and interpreter for the MINI core language are mandatory. Implementing the core awards up to 200 points. The project presentation will be worth up to 100 points. To gain more points on top of the aforementioned, you can choose from several language extensions for the MINI language.
+
+For a positive evaluation of this project at least 200 points are required. A positive grade on the project is necessary in order to receive a positive grade in this course.
+The total points for the project are calculated by adding up the points on the core, the selected extensions and the submission talk. A positive grade on the core itself is \textit{not} required. At most 300 points are awarded for the project implementation.
+
+In contrast to previous exercises, there is no second submission.
+
+\section{MINI Core (200P)}
+
+\subsection{Informal Description}
+
+This section informally describes the core of the MINI programming language, only covering the language core.
+
+MINI is a procedural programming language. The syntax and semantics of MINI are inspired by the \href{https://en.wikipedia.org/wiki/C_(programming_language)}{programming language C}.
+
+All code is contained in a single procedure \code{main} and variables are of the same type, namely the arbitrarily sized integer (Haskell type \code{Integer}). This means that the type of the variables is not explicitly specified in MINI. Variables are not required to be declared before definition.
+
+The procedure \code{main} implements a pure function, input/output functionality is not included in the core of MINI. Procedure \code{main} takes a defined set of named variables and returns a result. The last statement of the procedure must be a \code{return} statement and no other \code{return} statement can occur in the procedure. In contrast to common programming languages, \code{return} statements in MINI are syntactically restricted to return the value of a single variable instead of a general expression.
+
+The \code{while} and \code{if} statements are defined as in C: the \code{while} statement implements a loop that executes the given block in a loop as long the test-expression evaluates to true. The \code{if} statement executes either the first or optionally the second block.
+
+It is not necessary to declare variables before usage, however, it is necessary to define their value before usage, i.e. a variable must be initialised before it can be used in arithmetic and boolean expressions.
+Variables declared in the argument list are initialised with the values the procedure has been invoked with.
+
+
+\subsection{Syntax}
+
+\begin{align*}
+program :=& \ \texttt{procedure main}\inParens{argument\_vars} \inBraces{procedure\_body} \\
+argument\_vars :=& \ var \ | \ var\comma argument\_vars \\
+procedure\_body :=& \ statements\space return\_stmt \\
+statements :=& \ \varepsilon \ | \ statement \space statements \\
+statement :=& \ while\_stmt \ | \ if\_stmt \ | \ assign\_stmt \\
+while\_stmt :=& \ \texttt{while}\inParens{bool\_expr} \inBraces{statements} \\
+if\_stmt :=& \ \texttt{if}\inParens{bool\_expr} \inBraces{statements}\\
+& \ | \ \texttt{if}\inParens{bool\_expr} \inBraces{statements} \texttt{else}\inBraces{statements} \\
+assign\_stmt :=& \ var \texttt{=} int\_expr \semicolon \\
+int\_expr :=& \ int\_expr\_nested \ | \ \texttt{-} int\_exp\_nested \\
+& \ | \ int\_expr\_nested \space operator \space int\_expr\_nested \\
+int\_expr\_nested :=& \ int \ | \ var \ | \ (int\_expr) \\
+operator :=& \ \texttt{+} \ | \ \texttt{-} \ | \ \texttt{*} \ | \ \texttt{/} \\
+bool\_expr :=& \ int\_expr \space relator \space int\_expr \\
+relator :=& \ \texttt{==} \ | \ \texttt{!=} \ | \ \texttt{<=} \ | \ \texttt{>=} \ | \ \texttt{<} \ | \ \texttt{>}\\
+return\_stmt :=& \ \texttt{return}\space var \semicolon\\
+int :=& \ digit \ | \ digit \space int\\
+var :=& \ ident \\
+ident :=& \ char \space ident\_rest \\
+ident\_rest :=& \ \varepsilon \ | \ ident\_char \space ident\_rest \\
+ident\_char :=& \ char \ | \ digit \ | \ \texttt{\_} \\
+char :=& \ \texttt{a} \ | \ \ldots \ | \ \texttt{z} \\
+digit :=& \ \texttt{0} \ | \ \ldots \ | \ \texttt{9}
+\end{align*}
+
+Additional whitespace is allowed everywhere except within identifier names, integer literals, the binary comparison operators, and the keywords (\code{procedure}, \code{return}, \code{if}, \code{else}, \code{while}).
+
+\subsection{Semantics}
+
+The value returned by the procedure $p\texttt{(}v_1, \ldots, v_n\texttt{)\{}s\texttt{\}}$, called with the values $x_1, \ldots, x_n$, is defined as $\mathcal{V}[s](\{v_1 \mapsto x_1, \ldots, v_k \mapsto x_k\})$.
+
+The function $\mathcal{V}$ evaluates a given snippet of code (first argument in square brackets) on a given program state (second arguments, in parentheses). The state of a running program can be described by a mapping from all variables to their values.
+
+
+\begin{align}
+\mathcal{V}[s_1 s_2](\sigma) :=& \ \mathcal{V}[s_2](\mathcal{V}[s_1](\sigma)) \mbox{ if } s_1 \mbox { is a statement}\\
+\mathcal{V}[\texttt{while}\inParens{b}\inBraces{s}](\sigma) :=& \ \left\{\begin{array}{ll} \mathcal{V}[\texttt{while}\inParens{b}\inBraces{s}](\mathcal{V}[s](\sigma)) & \mbox{if } \mathcal{V}[b](\sigma) \\ \sigma & \mbox{otherwise} \end{array}\right. \\
+\mathcal{V}[\texttt{if}\inParens{b}\inBraces{s}](\sigma) :=& \ \left\{\begin{array}{ll} \mathcal{V}[s](\sigma) & \mbox{if } \mathcal{V}[b](\sigma) \\ \sigma & \mbox{otherwise} \end{array}\right. \\
+\mathcal{V}[\texttt{if}\inParens{b}\inBraces{s_1}\texttt{else}\inBraces{s_2}](\sigma) :=& \ \left\{\begin{array}{ll} \mathcal{V}[s_1](\sigma) & \mbox{if } \mathcal{V}[b](\sigma) \\ \mathcal{V}[s_2](\sigma) & \mbox{otherwise} \end{array}\right. \\
+\mathcal{V}[v \texttt{=} e\texttt{;}](\sigma) :=& \ \sigma\{v \mapsto \mathcal{V}[e](\sigma)\} \\
+\mathcal{V}[\texttt{return } v\texttt{;}](\sigma) :=& \ \sigma(v) \\
+\mathcal{V}[e_1 \texttt{==} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) = \mathcal{V}[e_2](\sigma) \\
+\mathcal{V}[e_1 \texttt{!=} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) \neq \mathcal{V}[e_2](\sigma) \\
+\mathcal{V}[e_1 \texttt{<=} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) \le \mathcal{V}[e_2](\sigma) \\
+\mathcal{V}[e_1 \texttt{>=} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) \ge \mathcal{V}[e_2](\sigma) \\
+\mathcal{V}[e_1 \texttt{<} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) < \mathcal{V}[e_2](\sigma) \\
+\mathcal{V}[e_1 \texttt{>} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) > \mathcal{V}[e_2](\sigma) \\
+\mathcal{V}[e_1 \texttt{+} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) + \mathcal{V}[e_2](\sigma) \\
+\mathcal{V}[e_1 \texttt{-} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) - \mathcal{V}[e_2](\sigma) \\
+\mathcal{V}[e_1 \texttt{*} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) * \mathcal{V}[e_2](\sigma) \\
+\mathcal{V}[e_1 \texttt{/} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) / \mathcal{V}[e_2](\sigma) \\
+\mathcal{V}[\texttt{-}e](\sigma) :=& \ -\mathcal{V}[e](\sigma) \\
+\mathcal{V}[\inParens{e}](\sigma) :=& \ \mathcal{V}[e](\sigma) \\
+\mathcal{V}[v](\sigma) :=& \ \sigma(v) \mbox{ if } v \mbox { is a variable name}\\
+\mathcal{V}[i](\sigma) :=& \ \mbox{int}(i) \mbox{ if } i \mbox { is a sequence of digits}
+\end{align}
+
+
+We use the notation $\sigma\{v \mapsto x\}$ to denote the state that is obtained when updating the value of the variable $v$ to $x$. The expression $\sigma(v)$ describes the value of the variable $v$ in state $\sigma$. The operation $/$ describes integer division. The function $\mbox{int}$ converts a sequence of digits into an integer based on its natural base-10 interpretation. Integer types have arbitrary size (Haskell type \code{Integer}).
+
+The interpreter aborts the execution of invalid programs. A program is invalid in one of the following cases:
+
+\begin{itemize}
+\item A variable is not defined but used in an expression.
+\item Division by 0.
+\item The main procedure is called with an incorrect number of arguments.
+\end{itemize}
+
+\subsection{Examples}
+
+A procedure calculating the difference of two numbers:
+\begin{lstlisting}
+procedure main(a, b) {
+    c = a - b;
+    return c;
+}
+\end{lstlisting}
+
+A procedure calculating the minimum of two numbers:
+\begin{lstlisting}
+procedure main(a, b) {
+    if (a < b) {
+        c = a;
+    } else {
+        c = b;
+    }
+    return c;
+}
+\end{lstlisting}
+
+A procedure calculating the greatest common divisor for non-negative integers:
+
+\begin{lstlisting}
+procedure main(a, b) {
+    r = b;
+    if (a != 0) {
+        while (b != 0) {
+            if (a < b) {
+                b = b - a;
+            } else {
+                a = a - b;
+            }
+        }
+        r = a;
+    }
+    return r;
+}
+\end{lstlisting}
+
+\subsection{Tasks}
+
+The project implementation should consist of the parts listed in this section.
+
+\paragraph{Abstract Syntax Tree}
+
+Design an appropriate datatype for describing MINI programs.
+
+\paragraph{Parser}
+
+Implement a function that parses the source code and computes an abstract syntax tree of the program.
+
+You are allowed to choose one of the parsing approaches presented in the lecture or use an external monadic parsing library from Hackage. Document your choice.
+
+\paragraph{Interpreter}
+
+The interpreter function executes the main procedure with the given command-line arguments. It is assumed that the MINI procedure has already been parsed into an abstract syntax tree as described by the MINI semantics before execution.
+
+You have to choose an approach to handle the state of the running program. There are several approaches available. The following list describes some, not all, of the approaches. Document your choice.
+
+\begin{itemize}
+\item continuation: the interpreter function calls itself recursively with its updated state and remaining program
+\item monadic: use the state monad presented in the lecture or the state monad as defined in the \href{https://hackage.haskell.org/package/transformers}{\texttt{transformers}} library
+\item transformer: use monad transformers as defined by the \href{https://hackage.haskell.org/package/transformers}{\texttt{transformers}} and \href{https://hackage.haskell.org/package/mtl}{\texttt{mtl}} libraries (advanced)
+\item effect: use an effect library to handle state (advanced)
+    \begin{itemize}
+    \item \href{https://hackage.haskell.org/package/polysemy}{\texttt{polysemy}}
+    \item \href{https://hackage.haskell.org/package/freer-simple}{\texttt{freer-simple}}
+    \end{itemize}
+\end{itemize}
+
+\paragraph{The Main Function}
+
+Instead of specifying a single function that should be implemented, the behavior of the running binary is given: The program should read the command-line arguments and interpret the first argument as the path of the source file. The program source code is parsed and interpreted using the remaining command-line arguments (parsed as integers) as procedure arguments.
+
+The program should abort with a nonzero exit code in case of errors such as:
+
+\begin{itemize}
+\item missing command-line arguments,
+\item format errors of command-line argument integers,
+\item parsing errors,
+\item interpretation errors.
+\end{itemize}
+
+\paragraph{Test Suite}
+
+Projects of this size profit from an automatic test-suite. Write a test-suite for the major components of the project using one of the following frameworks:
+
+\begin{itemize}
+\item \href{https://hackage.haskell.org/package/hspec}{\texttt{hspec}}, a tutorial can be found \href{https://hspec.github.io/}{\texttt{here}}
+\item \href{https://hackage.haskell.org/package/tasty}{\texttt{tasty}}
+\item \href{https://hackage.haskell.org/package/HTF}{\texttt{HTF}}
+\item \href{https://hackage.haskell.org/package/HUnit}{\texttt{HUnit}}
+\end{itemize}
+
+As before, it is encouraged to utilise external libraries for writing tests.
+
+It is required to write at least three unit tests per major component, where major components are:
+
+\begin{itemize}
+\item MINI parser
+\item MINI interpreter
+\end{itemize}
+
+Additionally, use \href{https://hackage.haskell.org/package/QuickCheck}{\texttt{QuickCheck}} property tests to verify correctness for programs written in MINI against an equivalent Haskell implementation. Write your own MINI programs for solving the following numerical problems:
+
+\begin{itemize}
+\item Given a parameter \code{n}, calculate the nth \href{https://en.wikipedia.org/wiki/Fibonacci_number}{\texttt{Fibonacci number}}.
+\item Check for a given parameter \code{n} whether it is a prime number. Efficiency is not a concern.
+\item Given two positive nonzero numbers \code{a} and \code{b}, calculate their \href{https://en.wikipedia.org/wiki/Least_common_multiple}{\texttt{least common multiple}}.
+\end{itemize}
+
+\section{MINI Extensions}
+
+This section describes some language extensions to MINI. Each extension is worth up to 50 points. Note that none of the described extensions are necessary for a positive grade.
+
+\subsection{Named Procedures (50P)}
+
+MINI core programs only consist of a single procedure, named \code{main}. However, this is unwieldy as you can not re-use code.
+This extension allows multiple \textit{named procedures} that can be called from any other procedure and can also be used to implement \textit{recursion} patterns.
+
+\paragraph{Syntax}
+
+The following grammar rules are added/updated:
+
+
+\begin{align}
+program :=& \ main\_procedure\space procedures \\
+main\_procedure :=& \ \texttt{procedure main}\inParens{argument\_vars} \inBraces{procedure\_body} \\
+procedures :=& \ \varepsilon \ | \ procedure \space procedures \\
+procedure :=& \ \texttt{procedure}\space ident\inParens{argument\_vars} \inBraces{procedure\_body} \\
+call\_expr :=& \ ident\inParens{argument\_list} \\
+argument\_list :=& \ int\_expr \ | \ int\_expr\comma argument\_list
+\end{align}
+
+
+The option $call\_expr$ is added to $int\_expr\_nested$
+
+If the extension ``IO System'' is also implemented, \code{read\_int} and \code{print\_int} are invalid procedure names.
+
+\paragraph{Semantics}
+
+The following rule is added to the definition of the program evaluation function $\mathcal{V}$.
+
+
+\begin{align}
+\mathcal{V}[p\inParens{x_1, \ldots, x_k}](\sigma) :=& \ \mathcal{V}[s](\{v_1 \mapsto x_1, \ldots, v_k \mapsto x_k\}) \\ &\mbox{ if } p\inParens{v_1, \ldots, v_n}\inBraces{s} \mbox { is a defined procedure}
+\end{align}
+
+
+The interpreter aborts the execution if an unknown procedure is called or an incorrect number of arguments is given.
+
+\paragraph{Tasks}
+
+\begin{itemize}
+\item Add the definition and invocation of named procedures to the abstract syntax tree.
+\item Modify the parser to correctly parse named procedure definitions and invocations.
+\item Modify the interpreter to correctly call named procedures.
+\item Provide test-cases for your parser and interpreter to showcase the functionality. Use QuickCheck if possible.
+\item Implement a simple recursive function in MINI and add the program to your test suite.
+\item Change the implementation of your gcd test-procedure to use a named procedure that calls itself recursively.
+\end{itemize}
+
+\subsection{IO System (50P)}
+
+Modern programming languages usually have a way to interact with a user via terminal or file system. This extension explores simple console interaction.
+
+The extension adds two new statements: one that prints an integer and one that reads an integer. \textit{Note}: By using a separate statement for reading integers, we avoid having multiple read-calls within a nesting expression.
+
+\paragraph{Synatx}
+
+
+The following grammar rules are added:
+
+
+\begin{align}
+print\_int\_stmt :=& \ \texttt{print\_int}\inParens{int\_expr}\semicolon \\
+read\_int\_stmt :=& \ var \texttt{=}\texttt{read\_int}\inParens{}\semicolon
+\end{align}
+
+
+The options $print\_int\_stmt$ and $read\_int\_stmt$ is added to $statement$.
+
+\paragraph{Semantics}
+
+Side effects are not easily expressible with the evaluation function $\mathcal{V}$. Therefore, this feature is only described informally.
+
+\begin{itemize}
+\item The statement $\texttt{print\_int(}e\texttt{);}$ evaluates $e$ in the current state and prints the value as formatted signed integer to the standard output stream, followed by a newline character (`\\n').
+\item The statement $var \texttt{=read\_int();}$ reads a line from standard input, converts the input into a number and then assigns the value to the given variable. If the input string is invalid or no further line can be read, the interpreter aborts the execution.
+\end{itemize}
+
+\paragraph{Tasks}
+
+\begin{itemize}
+\item Add the IO statements to the abstract syntax tree
+\item Modify the parser to correctly parse IO statements.
+\item Modify the interpreter to correctly execute IO statements.
+\item Provide test-cases for your parser to test the syntax extension.
+\end{itemize}
+
+\paragraph{Bonus Task: Stubbable IO in tests (10P)}
+
+Write test cases that test the functionality of the new IO statements of the interpreter. This should be done without having to access the program's standard input or output streams. Instead, the interpreter should be instructed to read integers defined by a test-case and capture written integers to be used in assert-statements at the end of the test.
+
+\subsection{Source Code Formatting (50P)}
+
+A common format of the source-code is essential for collaborative work on a project, as it improves readability and may help keeping new changes as small as possible. For our language, we want a single format to layout all our programs. The exact format is up to you, but with the following requirements:
+
+\begin{itemize}
+\item Code blocks must be indented, and all statements within a block must be on the same indentation level. Nested code blocks must be more deeply indented than their parent block.
+\item Introduce line-breaks after statements.
+\end{itemize}
+
+\paragraph{Implementation Suggestions}
+
+You may use special purpose libraries (we provide an example below) for this task or provide your own implementation. Note, when you use a library, you still need to be able to explain the high-level theory of it.
+
+\begin{itemize}
+\item \href{https://www.complang.tuwien.ac.at/knoop/lehre/ss21/ffp185A05/ffp185A05_ss21_210326.pdf}{\texttt{Chapter 17 Pretty Printer}}
+\item \href{https://hackage.haskell.org/package/prettyprinter}{\texttt{prettyprinter}}
+\end{itemize}
+
+\paragraph{Tasks}
+
+\begin{itemize}
+\item Implement a source code formatting function.
+\item Implement support for a command-line flag \code{--format} that is expected before the filename.
+\item Use QuickCheck to test the ``round-trip'' of pretty-printing and parsing your program: \code{\\program -> parse (pretty program) == program}
+\end{itemize}
+
+\subsection{Sensible Error Messages (50P)}
+
+When the parser fails in any way, it usually prints something that is hard to decipher for anyone who hasn't written the parser.
+
+In this extension, you will provide better error messages, i.e. messages that contain the error code and explain roughly what went wrong in at least the following cases:
+
+\begin{itemize}
+\item E01: Mismatched parentheses,
+\item E02: Unknown keyword,
+\item E03: Missing semicolon,
+\item E04: invalid identifier (starting with digit, e.g. \code{12ab} is not a valid identifier and not a valid number),
+\item E05: missing return statement at the end of a procedure.
+\end{itemize}
+
+For all other parse errors, the error code E00 can be used.
+
+It is not required to provide any specific diagnostics, but it needs to be apparent which error case occurred and what snippet of source code causes the issue.
+
+Moreover, implement a graceful crash message reporting for the interpreter. The following crash cases are to be reported:
+
+\begin{itemize}
+\item C01: variable used before definition,
+\item C02: division by 0,
+\item C03: procedure is called with the incorrect number of arguments,
+\item C04: unknown procedure called (optional, 1pt),
+\item C05: invalid input string on \code{read\_int} (optional, 1pt),
+\item C06: \code{eof} reached when calling \code{read\_int} (optional, 1pt).
+\end{itemize}
+
+\section{Bonus Task: Project Management (25P)}
+
+There is more to a successful project than just writing code. Usually, you also need to write proper documentation, distribute it, etc...
+
+In this section, you will try some project management mechanisms for Haskell: In particular, you will provide documentation for your program, find the coverage of your test-suite and learn more about basic profiling with GHC.
+
+\subsection{Command-Line Interface}
+
+The program so far only has very rudimentary argument parsing, allowing a single filepath, and arguments for that file.
+However, anyone who did not write this program has no idea about how to invoke this program correctly, thus, we want to have a proper command-line interface
+
+\paragraph{Implementation Suggestions}
+
+Common libraries for such tasks are \href{https://hackage.haskell.org/package/optparse-applicative}{\texttt{optparse-applicative}} and \href{https://hackage.haskell.org/package/cmdargs}{\texttt{cmdargs}} but it is also valid to not use any libraries at all and design your own solution.
+
+\paragraph{Required Flags}
+
+The program should be able to understand the following flags:
+
+\begin{itemize}
+\item On \code{-h}/\code{--help}, a help message should be displayed, explaining how the program can be invoked correctly.
+\item On \code{--check}, the given filepath should only be checked for parse errors but not executed.
+\item On \code{--extensions}, a list of supported MINI extensions is printed.
+\item Other flags as you see appropriate. (optional. not graded)
+\end{itemize}
+
+\subsection{Documentation}
+
+Document the most important types and functions of your project \href{https://haskell-haddock.readthedocs.io/en/latest/markup.html}{\texttt{haddock}}-conformly and provide the documentation via HTML.
+
+Helpful commands:
+
+\begin{itemize}
+\item \code{cabal haddock} for building the documentation and inspecting it locally.
+\item \code{cabal haddock --haddock-for-hackage} for building a \code{.tar.gz} containing the documentation.
+\item \code{stack haddock --open}: builds documentation and opens it in the browser upon completion.
+\end{itemize}
+
+\subsection{Test Coverage}
+
+Generate the test-coverage of your program's test-suite.
+Discuss your findings and investigate any unexpected results.
+
+Helpful commands:
+
+\begin{itemize}
+\item \code{cabal test --enable-coverage}
+\item \code{stack test --coverage}
+\end{itemize}
+
+\subsection{Profiling}
+
+Being able to profile your code is of great importance in real-world projects. Thus, we want you to experiment with some profiling in Haskell.
+
+To do that, you might have to build your project in profiling mode:
+
+\begin{itemize}
+\item \code{cabal build --enable-profiling}
+\item \code{stack build --profile}
+\end{itemize}
+
+Then you can pass RTS arguments to the GHC program to obtain run-time information, such as which function you spend the most amount of time in, etc...
+
+Refer to the GHC documentation for the exact \href{https://downloads.haskell.org/ghc/latest/docs/html/users_guide/profiling.html#profiling-memory-usage}{\texttt{profiling flags}} to obtain relevant information.
+
+Answer the following questions:
+
+\begin{itemize}
+\item What is the memory usage over time?
+\item What is the peak memory usage?
+\item Which function is the most time spent in?
+\item Which type requires the most amount of memory?
+\end{itemize}
+
+\section{Submission artefacts}
+
+You should submit a zip-archive containing all project source files and a PDF with detailed project documentation in your group submission directory.
+
+\subsection{Project Implementation}
+
+The project should be written as a \code{cabal} or \code{stack} project consisting of multiple modules.
+
+\subsection{Test Suite}
+
+Unit tests and property tests need to be submitted as well, and it must be possible to run the whole test-suite with either \code{cabal test} or \code{stack test}.
+
+\subsubsection{Project Documentation}
+
+The project documentation pdf should cover at least these topics and explain your choices.
+
+\begin{itemize}
+\item Which project build tool is used for the project? (\texttt{cabal} or \texttt{stack})
+\item Which GHC version is used?
+\item How can the program binary be built? How can it be run?
+\item Which libraries are included as dependencies and which Haskell language extensions are enabled?
+\item Which Framework and libraries are used for writing tests?
+\item Which approach is used for the source code parser?
+\item What is the signature of the main interpreter function? Which MINI extensions had an effect on its type if any?
+\item Which MINI language extensions are implemented?
+\item How is the mutating state of the interpreted programming implemented?
+\item How is the functionality partitioned into different modules?
+\item How do you test your program? Which parts are the focus of your tests? Do there exist parts of the code that cannot be tested?
+\item Are there known issues and limitations of your program?
+\end{itemize}
+
+\vspace*{1cm}
+
+\noindent
+\hfill \emph{Iucundi acti labores.}  \\
+\vspace*{-0.45cm}
+
+\hfill \emph{Getane Arbeiten sind angenehm.}\\
+
+\vspace*{-0.3cm}
+\hfill Cicero (106 - 43 v.Chr.) \\
+
+\vspace*{-0.45cm}
+\hfill r\"om.~Staatsmann und Schriftsteller \\
+
+\end{document}
+
+
