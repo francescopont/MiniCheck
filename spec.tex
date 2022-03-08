@@ -21,6 +21,9 @@
 \usepackage[backend=biber,style=numeric,sorting=ydnt]{biblatex}
 \addbibresource{biblio.bib} %Import the bibliography file
 
+%% to add todonotes
+\usepackage{todonotes}
+
 
 \newcommand\inParens[1]{\texttt{(}#1\texttt{)}}
 \newcommand\inBraces[1]{\texttt{\{}#1\texttt{\}}}
@@ -50,13 +53,13 @@
 \large
 \thispagestyle{empty}
 \begin{center}
-  {\Large \textbf{185.A05 Advanced Functional Programming SS 21}}  \\ [1ex] 
-               Tuesday, 27 April 2021 \\ [1ex] 
+  {\Large \textbf{185.A05 Advanced Functional Programming SS 22}}  \\ [1ex] 
+            \todo{Add date here}  [1ex] 
                {\Large \textbf{Assignment 5}} \\[.5ex]
-              {\Large \textbf{Programming Project MINI}} \\[.5ex]
+              {\Large \textbf{Model Checking Project MiniCheck}} \\[.5ex]
                  \textbf{All Chapters}  \\ [.75ex]
-           \textbf{Topic:} Building a Parser and Interpreter for MINI plus Implementing a Choice of Language/Interpreter Extensions \\[1ex]
-          \textbf{Submission deadline:}  Friday, 11 June 2021, 12am  (No second submission!) \\ [.5ex]
+           \textbf{Topic:} Building an LTL Model Checker plus Implementing a Choice of Modelling/Tool support extension  \\[1ex]
+          \textbf{Submission deadline:}  \todo{add submission deadline here!} [.5ex]
 %          (In case of need, this deadline will be extended (details posted via TISS))
 \end{center}
 
@@ -73,22 +76,45 @@
 \newcommand{\code}[1]{\texttt{#1}}
 
 \noindent
-The goal of this project is to implement an interpreter for the programming language MINI. The project consists of two parts: the core language and the elective modular extensions. The core is mandatory but is only worth a portion of the points achievable in this project.
+The goal of the project is to implement an automata-based LTL Model Checker, \textit{MiniCheck}. The project consists of two parts: 
+the core model checker and the elective modular extensions. In turn, the core model checker consists of a parser which builds 
+an appropriate automaton from the input LTL formula and a cycle detection module which (dis)proves the input formula.
+The core is mandatory but is only worth a portion of the points achievable in this project.
 
-In contrast to previous exercises, you are not asked to implement functions with given signatures. Instead, the functionality of the executed program is evaluated. You will have to design your own function signatures and data types and decide which data structures you want to use.
+In contrast to previous exercises, you are not asked to implement functions with given signatures. 
+Instead, the functionality of the executed program is evaluated. 
+You will have to design your own function signatures and data types and decide which data structures you want to use.
 
-The program should not be written in a single file, but as a \href{https://docs.haskellstack.org/en/stable/README/}{\code{stack}} or \href{https://cabal.readthedocs.io/en/3.4/}{\code{cabal}} project consisting of multiple modules. It is encouraged to use custom and predefined data structures, as well as external libraries and Haskell language extensions where appropriate. It is not required to get the project to run on g0.
+The program should not be written in a single file, but as a \href{https://docs.haskellstack.org/en/stable/README/}{\code{stack}} 
+or \href{https://cabal.readthedocs.io/en/3.4/}{\code{cabal}} project consisting of multiple modules. 
+It is encouraged to use custom and predefined data structures, as well as external libraries 
+and Haskell language extensions \textbf{where appropriate}. It is not required to get the project to run on g0.
 
-There will be a Q\&A session where help will be provided in case there are troubles with the selected technologies. The date will be announced via TISS news.
+There will be a Q\&A session where help will be provided in case there are troubles with the selected technologies. 
+The date will be announced via TISS news.
 
 \section{Grading}
 
-The parser and interpreter for the MINI core language are mandatory. Implementing the core awards up to 200 points. The project presentation will be worth up to 100 points. To gain more points on top of the aforementioned, you can choose from several language extensions for the MINI language.
+The parser and the cycle detection module of MiniCheck are mandatory. 
+Implementing the core awards up to 200 points. The project presentation will be worth up to 100 points. 
+To gain more points on top of the aforementioned, you can choose from some modelling and verification extensions of the MiniCheck tool.
 
-For a positive evaluation of this project at least 200 points are required. A positive grade on the project is necessary in order to receive a positive grade in this course.
-The total points for the project are calculated by adding up the points on the core, the selected extensions and the submission talk. A positive grade on the core itself is \textit{not} required. At most 300 points are awarded for the project implementation.
+For a positive evaluation of this project at least 200 points are required. A positive grade on the project is necessary 
+in order to receive a positive grade in this course. The total points for the project are calculated by adding up the points on the core, 
+the selected extensions and the submission talk. A positive grade on the core itself is \textit{not} required. 
+At most 300 points are awarded for the project implementation.
 
 In contrast to previous exercises, there is no second submission.
+
+\subsection{Note}
+Some previous knowledge in the field helps, but it's not mandatory. This includes also:
+\begin{itemize}
+    \item Automata theory
+    \item Graph Algorithms
+\end{itemize}
+
+
+
 
 \section{MINI Core (200P)}
 
@@ -293,10 +319,11 @@ Additionally, use \href{https://hackage.haskell.org/package/QuickCheck}{\texttt{
 \end{itemize}
 
 \section{MINI Extensions}
+This section describes some extensions to MiniCheck. Each extension is worth the given amount of points. 
+Note that none of the described extensions are necessary for a positive grade.
 
-This section describes some language extensions to MINI. Each extension is worth up to 50 points. Note that none of the described extensions are necessary for a positive grade.
-
-\subsection{Named Procedures (50P)}
+\subsection{Parsing Mini Programs (100 P)}
+\todo{write me!}
 
 MINI core programs only consist of a single procedure, named \code{main}. However, this is unwieldy as you can not re-use code.
 This extension allows multiple \textit{named procedures} that can be called from any other procedure and can also be used to implement \textit{recursion} patterns.
@@ -444,7 +471,8 @@ Moreover, implement a graceful crash message reporting for the interpreter. The 
 
 There is more to a successful project than just writing code. Usually, you also need to write proper documentation, distribute it, etc...
 
-In this section, you will try some project management mechanisms for Haskell: In particular, you will provide documentation for your program, find the coverage of your test-suite and learn more about basic profiling with GHC.
+In this section, you will try some project management mechanisms for Haskell: In particular, you will provide documentation for your program, 
+find the coverage of your test-suite and learn more about basic profiling with GHC.
 
 \subsection{Command-Line Interface}
 
@@ -453,7 +481,9 @@ However, anyone who did not write this program has no idea about how to invoke t
 
 \paragraph{Implementation Suggestions}
 
-Common libraries for such tasks are \href{https://hackage.haskell.org/package/optparse-applicative}{\texttt{optparse-applicative}} and \href{https://hackage.haskell.org/package/cmdargs}{\texttt{cmdargs}} but it is also valid to not use any libraries at all and design your own solution.
+Common libraries for such tasks are \href{https://hackage.haskell.org/package/optparse-applicative}{\texttt{optparse-applicative}} 
+and \href{https://hackage.haskell.org/package/cmdargs}{\texttt{cmdargs}} but it is also valid to not use any libraries at all 
+and design your own solution.
 
 \paragraph{Required Flags}
 
@@ -461,7 +491,7 @@ The program should be able to understand the following flags:
 
 \begin{itemize}
 \item On \code{-h}/\code{--help}, a help message should be displayed, explaining how the program can be invoked correctly.
-\item On \code{--check}, the given filepath should only be checked for parse errors but not executed.
+\item On \code{--sat}, the input code .
 \item On \code{--extensions}, a list of supported MINI extensions is printed.
 \item Other flags as you see appropriate. (optional. not graded)
 \end{itemize}
@@ -536,28 +566,13 @@ The project documentation pdf should cover at least these topics and explain you
 \item How can the program binary be built? How can it be run?
 \item Which libraries are included as dependencies and which Haskell language extensions are enabled?
 \item Which Framework and libraries are used for writing tests?
-\item Which approach is used for the source code parser?
-\item What is the signature of the main interpreter function? Which MINI extensions had an effect on its type if any?
-\item Which MINI language extensions are implemented?
-\item How is the mutating state of the interpreted programming implemented?
+\item Which MiniCheck extensions are implemented?
 \item How is the functionality partitioned into different modules?
 \item How do you test your program? Which parts are the focus of your tests? Do there exist parts of the code that cannot be tested?
 \item Are there known issues and limitations of your program?
 \end{itemize}
 
 \vspace*{1cm}
-
-\noindent
-\hfill \emph{Iucundi acti labores.}  \\
-\vspace*{-0.45cm}
-
-\hfill \emph{Getane Arbeiten sind angenehm.}\\
-
-\vspace*{-0.3cm}
-\hfill Cicero (106 - 43 v.Chr.) \\
-
-\vspace*{-0.45cm}
-\hfill r\"om.~Staatsmann und Schriftsteller \\
 
 \end{document}
 
