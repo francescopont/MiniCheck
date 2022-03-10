@@ -58,7 +58,7 @@
                {\Large \textbf{Assignment 5}} \\[.5ex]
               {\Large \textbf{Model Checking Project MiniCheck}} \\[.5ex]
                  \textbf{All Chapters}  \\ [.75ex]
-           \textbf{Topic:} Building an LTL Model Checker plus Implementing a Choice of Modelling/Tool support extension  \\[1ex]
+           \textbf{Topic:} Building an LTL Model Checker plus Implementing a Choice of Modelling/Verification extension  \\[1ex]
           \textbf{Submission deadline:}  \todo{add submission deadline here!} [.5ex]
 %          (In case of need, this deadline will be extended (details posted via TISS))
 \end{center}
@@ -77,8 +77,11 @@
 
 \noindent
 The goal of the project is to implement an automata-based LTL Model Checker, \textit{MiniCheck}. The project consists of two parts: 
-the core model checker and the elective modular extensions. In turn, the core model checker consists of a parser which builds 
-an appropriate automaton from the input LTL formula and a cycle detection module which (dis)proves the input formula.
+the core model checker and the elective modular extensions. In turn, the core model checker consists of: 
+\begin{itemize}
+    \item a parser which builds an appropriate automaton from the input LTL formula.
+    \item a cycle detection module which (dis)proves the formula on a given Transition System.
+\end{itemize}  
 The core is mandatory but is only worth a portion of the points achievable in this project.
 
 In contrast to previous exercises, you are not asked to implement functions with given signatures. 
@@ -95,7 +98,7 @@ The date will be announced via TISS news.
 
 \section{Grading}
 
-The parser and the cycle detection module of MiniCheck are mandatory. 
+The parser and the cycle detection modules of MiniCheck are mandatory. 
 Implementing the core awards up to 200 points. The project presentation will be worth up to 100 points. 
 To gain more points on top of the aforementioned, you can choose from some modelling and verification extensions of the MiniCheck tool.
 
@@ -107,20 +110,20 @@ At most 300 points are awarded for the project implementation.
 In contrast to previous exercises, there is no second submission.
 
 \subsection{Note}
-Some previous knowledge in the field helps, but it's not mandatory. This includes also:
+Some previous knowledge in the field helps and makes the project smaller, 
+but it's not mandatory. This includes also:
 \begin{itemize}
-    \item Automata theory
+    \item Automata Theory
     \item Graph Algorithms
 \end{itemize}
 
+\section{MiniCheck Core (200P)}
 
+Model Checking consists of formally verifying a formulas against all the possible executions of a particular type of 
 
+\subsection{Preliminaries}
 
-\section{MINI Core (200P)}
-
-\subsection{Informal Description}
-
-This section informally describes the core of the MINI programming language, only covering the language core.
+This section introduces the formalisms involved in the model checking Pr
 
 MINI is a procedural programming language. The syntax and semantics of MINI are inspired by the \href{https://en.wikipedia.org/wiki/C_(programming_language)}{programming language C}.
 
@@ -136,115 +139,12 @@ Variables declared in the argument list are initialised with the values the proc
 
 \subsection{Syntax}
 
-\begin{align*}
-program :=& \ \texttt{procedure main}\inParens{argument\_vars} \inBraces{procedure\_body} \\
-argument\_vars :=& \ var \ | \ var\comma argument\_vars \\
-procedure\_body :=& \ statements\space return\_stmt \\
-statements :=& \ \varepsilon \ | \ statement \space statements \\
-statement :=& \ while\_stmt \ | \ if\_stmt \ | \ assign\_stmt \\
-while\_stmt :=& \ \texttt{while}\inParens{bool\_expr} \inBraces{statements} \\
-if\_stmt :=& \ \texttt{if}\inParens{bool\_expr} \inBraces{statements}\\
-& \ | \ \texttt{if}\inParens{bool\_expr} \inBraces{statements} \texttt{else}\inBraces{statements} \\
-assign\_stmt :=& \ var \texttt{=} int\_expr \semicolon \\
-int\_expr :=& \ int\_expr\_nested \ | \ \texttt{-} int\_exp\_nested \\
-& \ | \ int\_expr\_nested \space operator \space int\_expr\_nested \\
-int\_expr\_nested :=& \ int \ | \ var \ | \ (int\_expr) \\
-operator :=& \ \texttt{+} \ | \ \texttt{-} \ | \ \texttt{*} \ | \ \texttt{/} \\
-bool\_expr :=& \ int\_expr \space relator \space int\_expr \\
-relator :=& \ \texttt{==} \ | \ \texttt{!=} \ | \ \texttt{<=} \ | \ \texttt{>=} \ | \ \texttt{<} \ | \ \texttt{>}\\
-return\_stmt :=& \ \texttt{return}\space var \semicolon\\
-int :=& \ digit \ | \ digit \space int\\
-var :=& \ ident \\
-ident :=& \ char \space ident\_rest \\
-ident\_rest :=& \ \varepsilon \ | \ ident\_char \space ident\_rest \\
-ident\_char :=& \ char \ | \ digit \ | \ \texttt{\_} \\
-char :=& \ \texttt{a} \ | \ \ldots \ | \ \texttt{z} \\
-digit :=& \ \texttt{0} \ | \ \ldots \ | \ \texttt{9}
-\end{align*}
-
-Additional whitespace is allowed everywhere except within identifier names, integer literals, the binary comparison operators, and the keywords (\code{procedure}, \code{return}, \code{if}, \code{else}, \code{while}).
 
 \subsection{Semantics}
 
-The value returned by the procedure $p\texttt{(}v_1, \ldots, v_n\texttt{)\{}s\texttt{\}}$, called with the values $x_1, \ldots, x_n$, is defined as $\mathcal{V}[s](\{v_1 \mapsto x_1, \ldots, v_k \mapsto x_k\})$.
 
-The function $\mathcal{V}$ evaluates a given snippet of code (first argument in square brackets) on a given program state (second arguments, in parentheses). The state of a running program can be described by a mapping from all variables to their values.
-
-
-\begin{align}
-\mathcal{V}[s_1 s_2](\sigma) :=& \ \mathcal{V}[s_2](\mathcal{V}[s_1](\sigma)) \mbox{ if } s_1 \mbox { is a statement}\\
-\mathcal{V}[\texttt{while}\inParens{b}\inBraces{s}](\sigma) :=& \ \left\{\begin{array}{ll} \mathcal{V}[\texttt{while}\inParens{b}\inBraces{s}](\mathcal{V}[s](\sigma)) & \mbox{if } \mathcal{V}[b](\sigma) \\ \sigma & \mbox{otherwise} \end{array}\right. \\
-\mathcal{V}[\texttt{if}\inParens{b}\inBraces{s}](\sigma) :=& \ \left\{\begin{array}{ll} \mathcal{V}[s](\sigma) & \mbox{if } \mathcal{V}[b](\sigma) \\ \sigma & \mbox{otherwise} \end{array}\right. \\
-\mathcal{V}[\texttt{if}\inParens{b}\inBraces{s_1}\texttt{else}\inBraces{s_2}](\sigma) :=& \ \left\{\begin{array}{ll} \mathcal{V}[s_1](\sigma) & \mbox{if } \mathcal{V}[b](\sigma) \\ \mathcal{V}[s_2](\sigma) & \mbox{otherwise} \end{array}\right. \\
-\mathcal{V}[v \texttt{=} e\texttt{;}](\sigma) :=& \ \sigma\{v \mapsto \mathcal{V}[e](\sigma)\} \\
-\mathcal{V}[\texttt{return } v\texttt{;}](\sigma) :=& \ \sigma(v) \\
-\mathcal{V}[e_1 \texttt{==} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) = \mathcal{V}[e_2](\sigma) \\
-\mathcal{V}[e_1 \texttt{!=} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) \neq \mathcal{V}[e_2](\sigma) \\
-\mathcal{V}[e_1 \texttt{<=} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) \le \mathcal{V}[e_2](\sigma) \\
-\mathcal{V}[e_1 \texttt{>=} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) \ge \mathcal{V}[e_2](\sigma) \\
-\mathcal{V}[e_1 \texttt{<} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) < \mathcal{V}[e_2](\sigma) \\
-\mathcal{V}[e_1 \texttt{>} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) > \mathcal{V}[e_2](\sigma) \\
-\mathcal{V}[e_1 \texttt{+} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) + \mathcal{V}[e_2](\sigma) \\
-\mathcal{V}[e_1 \texttt{-} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) - \mathcal{V}[e_2](\sigma) \\
-\mathcal{V}[e_1 \texttt{*} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) * \mathcal{V}[e_2](\sigma) \\
-\mathcal{V}[e_1 \texttt{/} e_2](\sigma) :=& \ \mathcal{V}[e_1](\sigma) / \mathcal{V}[e_2](\sigma) \\
-\mathcal{V}[\texttt{-}e](\sigma) :=& \ -\mathcal{V}[e](\sigma) \\
-\mathcal{V}[\inParens{e}](\sigma) :=& \ \mathcal{V}[e](\sigma) \\
-\mathcal{V}[v](\sigma) :=& \ \sigma(v) \mbox{ if } v \mbox { is a variable name}\\
-\mathcal{V}[i](\sigma) :=& \ \mbox{int}(i) \mbox{ if } i \mbox { is a sequence of digits}
-\end{align}
-
-
-We use the notation $\sigma\{v \mapsto x\}$ to denote the state that is obtained when updating the value of the variable $v$ to $x$. The expression $\sigma(v)$ describes the value of the variable $v$ in state $\sigma$. The operation $/$ describes integer division. The function $\mbox{int}$ converts a sequence of digits into an integer based on its natural base-10 interpretation. Integer types have arbitrary size (Haskell type \code{Integer}).
-
-The interpreter aborts the execution of invalid programs. A program is invalid in one of the following cases:
-
-\begin{itemize}
-\item A variable is not defined but used in an expression.
-\item Division by 0.
-\item The main procedure is called with an incorrect number of arguments.
-\end{itemize}
 
 \subsection{Examples}
-
-A procedure calculating the difference of two numbers:
-\begin{lstlisting}
-procedure main(a, b) {
-    c = a - b;
-    return c;
-}
-\end{lstlisting}
-
-A procedure calculating the minimum of two numbers:
-\begin{lstlisting}
-procedure main(a, b) {
-    if (a < b) {
-        c = a;
-    } else {
-        c = b;
-    }
-    return c;
-}
-\end{lstlisting}
-
-A procedure calculating the greatest common divisor for non-negative integers:
-
-\begin{lstlisting}
-procedure main(a, b) {
-    r = b;
-    if (a != 0) {
-        while (b != 0) {
-            if (a < b) {
-                b = b - a;
-            } else {
-                a = a - b;
-            }
-        }
-        r = a;
-    }
-    return r;
-}
-\end{lstlisting}
 
 \subsection{Tasks}
 
@@ -306,166 +206,20 @@ As before, it is encouraged to utilise external libraries for writing tests.
 It is required to write at least three unit tests per major component, where major components are:
 
 \begin{itemize}
-\item MINI parser
-\item MINI interpreter
-\end{itemize}
-
-Additionally, use \href{https://hackage.haskell.org/package/QuickCheck}{\texttt{QuickCheck}} property tests to verify correctness for programs written in MINI against an equivalent Haskell implementation. Write your own MINI programs for solving the following numerical problems:
-
-\begin{itemize}
-\item Given a parameter \code{n}, calculate the nth \href{https://en.wikipedia.org/wiki/Fibonacci_number}{\texttt{Fibonacci number}}.
-\item Check for a given parameter \code{n} whether it is a prime number. Efficiency is not a concern.
-\item Given two positive nonzero numbers \code{a} and \code{b}, calculate their \href{https://en.wikipedia.org/wiki/Least_common_multiple}{\texttt{least common multiple}}.
+\item MiniCheck formulas parser
+\item MiniCheck cycle detection module
 \end{itemize}
 
 \section{MINI Extensions}
 This section describes some extensions to MiniCheck. Each extension is worth the given amount of points. 
 Note that none of the described extensions are necessary for a positive grade.
 
-\subsection{Parsing Mini Programs (100 P)}
+\subsection{Parsing MINI Programs (100 P)}
 \todo{write me!}
 
-MINI core programs only consist of a single procedure, named \code{main}. However, this is unwieldy as you can not re-use code.
-This extension allows multiple \textit{named procedures} that can be called from any other procedure and can also be used to implement \textit{recursion} patterns.
+\subsection{Returning Counterexamples (50P)}
 
-\paragraph{Syntax}
-
-The following grammar rules are added/updated:
-
-
-\begin{align}
-program :=& \ main\_procedure\space procedures \\
-main\_procedure :=& \ \texttt{procedure main}\inParens{argument\_vars} \inBraces{procedure\_body} \\
-procedures :=& \ \varepsilon \ | \ procedure \space procedures \\
-procedure :=& \ \texttt{procedure}\space ident\inParens{argument\_vars} \inBraces{procedure\_body} \\
-call\_expr :=& \ ident\inParens{argument\_list} \\
-argument\_list :=& \ int\_expr \ | \ int\_expr\comma argument\_list
-\end{align}
-
-
-The option $call\_expr$ is added to $int\_expr\_nested$
-
-If the extension ``IO System'' is also implemented, \code{read\_int} and \code{print\_int} are invalid procedure names.
-
-\paragraph{Semantics}
-
-The following rule is added to the definition of the program evaluation function $\mathcal{V}$.
-
-
-\begin{align}
-\mathcal{V}[p\inParens{x_1, \ldots, x_k}](\sigma) :=& \ \mathcal{V}[s](\{v_1 \mapsto x_1, \ldots, v_k \mapsto x_k\}) \\ &\mbox{ if } p\inParens{v_1, \ldots, v_n}\inBraces{s} \mbox { is a defined procedure}
-\end{align}
-
-
-The interpreter aborts the execution if an unknown procedure is called or an incorrect number of arguments is given.
-
-\paragraph{Tasks}
-
-\begin{itemize}
-\item Add the definition and invocation of named procedures to the abstract syntax tree.
-\item Modify the parser to correctly parse named procedure definitions and invocations.
-\item Modify the interpreter to correctly call named procedures.
-\item Provide test-cases for your parser and interpreter to showcase the functionality. Use QuickCheck if possible.
-\item Implement a simple recursive function in MINI and add the program to your test suite.
-\item Change the implementation of your gcd test-procedure to use a named procedure that calls itself recursively.
-\end{itemize}
-
-\subsection{IO System (50P)}
-
-Modern programming languages usually have a way to interact with a user via terminal or file system. This extension explores simple console interaction.
-
-The extension adds two new statements: one that prints an integer and one that reads an integer. \textit{Note}: By using a separate statement for reading integers, we avoid having multiple read-calls within a nesting expression.
-
-\paragraph{Synatx}
-
-
-The following grammar rules are added:
-
-
-\begin{align}
-print\_int\_stmt :=& \ \texttt{print\_int}\inParens{int\_expr}\semicolon \\
-read\_int\_stmt :=& \ var \texttt{=}\texttt{read\_int}\inParens{}\semicolon
-\end{align}
-
-
-The options $print\_int\_stmt$ and $read\_int\_stmt$ is added to $statement$.
-
-\paragraph{Semantics}
-
-Side effects are not easily expressible with the evaluation function $\mathcal{V}$. Therefore, this feature is only described informally.
-
-\begin{itemize}
-\item The statement $\texttt{print\_int(}e\texttt{);}$ evaluates $e$ in the current state and prints the value as formatted signed integer to the standard output stream, followed by a newline character (`\\n').
-\item The statement $var \texttt{=read\_int();}$ reads a line from standard input, converts the input into a number and then assigns the value to the given variable. If the input string is invalid or no further line can be read, the interpreter aborts the execution.
-\end{itemize}
-
-\paragraph{Tasks}
-
-\begin{itemize}
-\item Add the IO statements to the abstract syntax tree
-\item Modify the parser to correctly parse IO statements.
-\item Modify the interpreter to correctly execute IO statements.
-\item Provide test-cases for your parser to test the syntax extension.
-\end{itemize}
-
-\paragraph{Bonus Task: Stubbable IO in tests (10P)}
-
-Write test cases that test the functionality of the new IO statements of the interpreter. This should be done without having to access the program's standard input or output streams. Instead, the interpreter should be instructed to read integers defined by a test-case and capture written integers to be used in assert-statements at the end of the test.
-
-\subsection{Source Code Formatting (50P)}
-
-A common format of the source-code is essential for collaborative work on a project, as it improves readability and may help keeping new changes as small as possible. For our language, we want a single format to layout all our programs. The exact format is up to you, but with the following requirements:
-
-\begin{itemize}
-\item Code blocks must be indented, and all statements within a block must be on the same indentation level. Nested code blocks must be more deeply indented than their parent block.
-\item Introduce line-breaks after statements.
-\end{itemize}
-
-\paragraph{Implementation Suggestions}
-
-You may use special purpose libraries (we provide an example below) for this task or provide your own implementation. Note, when you use a library, you still need to be able to explain the high-level theory of it.
-
-\begin{itemize}
-\item \href{https://www.complang.tuwien.ac.at/knoop/lehre/ss21/ffp185A05/ffp185A05_ss21_210326.pdf}{\texttt{Chapter 17 Pretty Printer}}
-\item \href{https://hackage.haskell.org/package/prettyprinter}{\texttt{prettyprinter}}
-\end{itemize}
-
-\paragraph{Tasks}
-
-\begin{itemize}
-\item Implement a source code formatting function.
-\item Implement support for a command-line flag \code{--format} that is expected before the filename.
-\item Use QuickCheck to test the ``round-trip'' of pretty-printing and parsing your program: \code{\\program -> parse (pretty program) == program}
-\end{itemize}
-
-\subsection{Sensible Error Messages (50P)}
-
-When the parser fails in any way, it usually prints something that is hard to decipher for anyone who hasn't written the parser.
-
-In this extension, you will provide better error messages, i.e. messages that contain the error code and explain roughly what went wrong in at least the following cases:
-
-\begin{itemize}
-\item E01: Mismatched parentheses,
-\item E02: Unknown keyword,
-\item E03: Missing semicolon,
-\item E04: invalid identifier (starting with digit, e.g. \code{12ab} is not a valid identifier and not a valid number),
-\item E05: missing return statement at the end of a procedure.
-\end{itemize}
-
-For all other parse errors, the error code E00 can be used.
-
-It is not required to provide any specific diagnostics, but it needs to be apparent which error case occurred and what snippet of source code causes the issue.
-
-Moreover, implement a graceful crash message reporting for the interpreter. The following crash cases are to be reported:
-
-\begin{itemize}
-\item C01: variable used before definition,
-\item C02: division by 0,
-\item C03: procedure is called with the incorrect number of arguments,
-\item C04: unknown procedure called (optional, 1pt),
-\item C05: invalid input string on \code{read\_int} (optional, 1pt),
-\item C06: \code{eof} reached when calling \code{read\_int} (optional, 1pt).
-\end{itemize}
+\subsection{An \textit{On-the-fly} implementation (50P)}
 
 \section{Bonus Task: Project Management (25P)}
 
@@ -476,8 +230,9 @@ find the coverage of your test-suite and learn more about basic profiling with G
 
 \subsection{Command-Line Interface}
 
-The program so far only has very rudimentary argument parsing, allowing a single filepath, and arguments for that file.
-However, anyone who did not write this program has no idea about how to invoke this program correctly, thus, we want to have a proper command-line interface
+The program so far only has very rudimentary argument parsing, allowing a single filepath.
+However, anyone who did not write this program has no idea about how to invoke the Model Checker correctly,
+thus, we want to have a proper command-line interface
 
 \paragraph{Implementation Suggestions}
 
@@ -491,7 +246,7 @@ The program should be able to understand the following flags:
 
 \begin{itemize}
 \item On \code{-h}/\code{--help}, a help message should be displayed, explaining how the program can be invoked correctly.
-\item On \code{--sat}, the input code .
+\item On \code{--sat}, the input code should \todo{write me!}.
 \item On \code{--extensions}, a list of supported MINI extensions is printed.
 \item Other flags as you see appropriate. (optional. not graded)
 \end{itemize}
@@ -573,6 +328,9 @@ The project documentation pdf should cover at least these topics and explain you
 \end{itemize}
 
 \vspace*{1cm}
+
+\printbibliography
+
 
 \end{document}
 
