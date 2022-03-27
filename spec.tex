@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage[austrian]{babel}
+%\usepackage[austrian]{babel}
 
 \input{epsf}
 
@@ -7,6 +7,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+% to add links to external resources
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
@@ -23,7 +24,6 @@
 
 %% to add todonotes
 \usepackage{todonotes}
-
 
 \newcommand\inParens[1]{\texttt{(}#1\texttt{)}}
 \newcommand\inBraces[1]{\texttt{\{}#1\texttt{\}}}
@@ -54,12 +54,12 @@
 \thispagestyle{empty}
 \begin{center}
   {\Large \textbf{185.A05 Advanced Functional Programming SS 22}}  \\ [1ex] 
-            \todo{Add date here}  [1ex] 
+            Monday, 05/02/2022  [1ex] 
                {\Large \textbf{Assignment 5}} \\[.5ex]
-              {\Large \textbf{Model Checking Project MiniCheck}} \\[.5ex]
+              {\Large \textbf{Model Checking Project: MiniCheck}} \\[.5ex]
                  \textbf{All Chapters}  \\ [.75ex]
            \textbf{Topic:} Building an LTL Model Checker plus Implementing a Choice of Modelling/Verification extension  \\[1ex]
-          \textbf{Submission deadline:}  \todo{add submission deadline here!} [.5ex]
+          \textbf{Submission deadline:} Friday, 06/13/2022  [.5ex]
 %          (In case of need, this deadline will be extended (details posted via TISS))
 \end{center}
 
@@ -76,8 +76,9 @@
 \newcommand{\code}[1]{\texttt{#1}}
 
 \noindent
-The goal of the project is to implement an automata-based LTL Model Checker, \textit{MiniCheck}. The project consists of two parts: 
-the core model checker and the elective modular extensions. In turn, the core model checker consists of: 
+The goal of the project is to implement an automata-based LTL Model Checker, \textit{MiniCheck}. 
+The project consists of two parts: the core model checker and the elective modular extensions. 
+In turn, the core model checker consists of: 
 \begin{itemize}
     \item a parser which builds an appropriate automaton from the input LTL formula.
     \item a cycle detection module which (dis)proves the formula on a given Transition System.
@@ -110,7 +111,9 @@ At most 300 points are awarded for the project implementation.
 In contrast to previous exercises, there is no second submission.
 
 \subsection{Note}
-Some previous knowledge in the field helps and makes the project smaller, 
+We assume a general knowledge of model checking and its purpose, as well as basis of logics,
+such as propositional logic.  
+Besides this, some previous knowledge in related fields helps and makes the project smaller, 
 but it's not mandatory. This includes also:
 \begin{itemize}
     \item Automata Theory
@@ -119,11 +122,48 @@ but it's not mandatory. This includes also:
 
 \section{MiniCheck Core (200P)}
 
-Model Checking consists of formally verifying a formulas against all the possible executions of a particular type of 
+Model Checking consists of formally and exhaustively verifying a formula 
+against all the possible executions of a particular type of automata. 
+In the following, we provide some informal information about the type the formalisms we will use, 
+and then present the project to carry out. 
+For a complete and deeper introduction to our approach in model checking, 
+we refer the reader to \cite{BaKa}. You can find a PDF version on the 
+\href{https://github.com/francescopont/MiniCheck.git}{Github repository}.
 
-\subsection{Preliminaries}
 
-This section introduces the formalisms involved in the model checking Pr
+\subsection{Preliminaries - Transition Systems}
+As modelling formalism, we use \emph{Transition Systems}(TS). They are a particular variant 
+of Finite State Automata which allow to describe adequately both hardware and sofware systems. 
+They are defined over infinite runs, and they do not have a set of final states. 
+Formally, a TS is a tuple ($S, Act, \rightarrow, I, AP, L$), where 
+\begin{itemize}
+    \item $S$ is a set of states,
+    \item $Act$ is a set of actions,
+    \item $\longrightarrow \subseteq S \times Act \times Act$ is a transition relation,
+    \item $AP$ is a set of atomic propositions, and 
+    \item $L : S \rightarrow 2^{AP}$ is a labelling function
+\end{itemize}
+They are used to specify how the system evolves from one state to another. The labelling function 
+maps every state to the set of atomic propositions holding in that state. The initial state is chosen 
+nondeterministically between all states $\in I$.
+We adopt a \textbf{state-based} approach: we consider (and want to verify) the labels in the state sequence 
+of a run of the TS, and abstract from actions. 
+
+Note that, for simplicity sake, we consider only TS with no terminal states.
+
+\subsubsection{Resources}
+\cite[Paragraph 2.1.1]{BaKa}
+\subsubsection{Task}
+Define a suitable plain-text representation of TS,  a data type to 
+represent them and implementing the corresponding parsing function. In particular,
+take care of making sure that there are no terminal states, and that there is at least an initial state.
+
+\todo{Add to the helper function the parsing of only this, and giving back results in case of failure}
+\subsection{Preliminaries - Linear Temporal Logic}
+To express properties
+
+
+
 
 MINI is a procedural programming language. The syntax and semantics of MINI are inspired by the \href{https://en.wikipedia.org/wiki/C_(programming_language)}{programming language C}.
 
@@ -330,6 +370,8 @@ The project documentation pdf should cover at least these topics and explain you
 \vspace*{1cm}
 
 \printbibliography
+
+
 
 
 \end{document}
