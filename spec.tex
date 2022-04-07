@@ -7,14 +7,28 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+
+% generic packages needed for math and logic symbols
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{wasysym}
+\usepackage{mathrsfs}
+\usepackage{array}
+
+%% for logical symbols 
+\input{macros.tex}
+
 % to add links to external resources
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
     filecolor=magenta,      
-    urlcolor=blue,
+    urlcolor=blue,    
+    citecolor=black
 }
+
+%to list code in the document
 \usepackage{listings}
 \usepackage{xcolor}
 
@@ -80,14 +94,15 @@ The goal of the project is to implement an automata-based LTL Model Checker, \te
 The project consists of two parts: the core model checker and the elective modular extensions. 
 In turn, the core model checker consists of: 
 \begin{itemize}
-    \item a parser which builds an appropriate automaton from the input LTL formula.
-    \item a cycle detection module which (dis)proves the formula on a given Transition System.
+    \item an automaton construction module which builds an appropriate automaton from the input LTL formula.
+    \item a cycle detection module which verifies the cartesian product of the automaton and a given Transition System.
 \end{itemize}  
 The core is mandatory but is only worth a portion of the points achievable in this project.
 
 In contrast to previous exercises, you are not asked to implement functions with given signatures. 
 Instead, the functionality of the executed program is evaluated. 
-You will have to design your own function signatures and data types and decide which data structures you want to use.
+You will have to design your own function signatures and data types and decide 
+which data structures you want to use.
 
 The program should not be written in a single file, but as a \href{https://docs.haskellstack.org/en/stable/README/}{\code{stack}} 
 or \href{https://cabal.readthedocs.io/en/3.4/}{\code{cabal}} project consisting of multiple modules. 
@@ -101,10 +116,12 @@ The date will be announced via TISS news.
 
 The parser and the cycle detection modules of MiniCheck are mandatory. 
 Implementing the core awards up to 200 points. The project presentation will be worth up to 100 points. 
-To gain more points on top of the aforementioned, you can choose from some modelling and verification extensions of the MiniCheck tool.
+To gain more points on top of the aforementioned, you can choose from some modelling 
+and verification extensions of the MiniCheck tool.
 
-For a positive evaluation of this project at least 200 points are required. A positive grade on the project is necessary 
-in order to receive a positive grade in this course. The total points for the project are calculated by adding up the points on the core, 
+For a positive evaluation of this project at least 200 points are required. 
+A positive grade on the project is necessary in order to receive a positive grade in this course. 
+The total points for the project are calculated by adding up the points on the core, 
 the selected extensions and the submission talk. A positive grade on the core itself is \textit{not} required. 
 At most 300 points are awarded for the project implementation.
 
@@ -112,9 +129,8 @@ In contrast to previous exercises, there is no second submission.
 
 \subsection{Note}
 We assume a general knowledge of model checking and its purpose, as well as basis of logics,
-such as propositional logic.  
-Besides this, some previous knowledge in related fields helps and makes the project smaller, 
-but it's not mandatory. This includes also:
+such as propositional logic.  Besides this, some previous knowledge in related fields helps 
+and makes the project smaller, but it's not mandatory. This includes also:
 \begin{itemize}
     \item Automata Theory
     \item Graph Algorithms
@@ -124,7 +140,10 @@ but it's not mandatory. This includes also:
 
 Model Checking consists of formally and exhaustively verifying a formula 
 against all the possible executions of a particular type of automata. 
-In the following, we provide some informal information about the type the formalisms we will use, 
+The automata-based approach we are going to follow has been originally proposed by 
+Vardi and Wolper \cite{VarWo}.
+In the following, we provide some preliminary information 
+about the type the formalisms you are required to support, 
 and then present the project to carry out. 
 For a complete and deeper introduction to our approach in model checking, 
 we refer the reader to \cite{BaKa}. You can find a PDF version on the 
@@ -132,7 +151,7 @@ we refer the reader to \cite{BaKa}. You can find a PDF version on the
 
 
 \subsection{Preliminaries - Transition Systems}
-As modelling formalism, we use \emph{Transition Systems}(TS). They are a particular variant 
+As modelling formalism, we use \emph{Transition Systems} (TS). They are a particular variant 
 of Finite State Automata which allow to describe adequately both hardware and sofware systems. 
 They are defined over infinite runs, and they do not have a set of final states. 
 Formally, a TS is a tuple ($S, Act, \rightarrow, I, AP, L$), where 
@@ -143,24 +162,45 @@ Formally, a TS is a tuple ($S, Act, \rightarrow, I, AP, L$), where
     \item $AP$ is a set of atomic propositions, and 
     \item $L : S \rightarrow 2^{AP}$ is a labelling function
 \end{itemize}
-They are used to specify how the system evolves from one state to another. The labelling function 
+Actions are used to specify how the system evolves from one state to another. The labelling function 
 maps every state to the set of atomic propositions holding in that state. The initial state is chosen 
 nondeterministically between all states $\in I$.
 We adopt a \textbf{state-based} approach: we consider (and want to verify) the labels in the state sequence 
 of a run of the TS, and abstract from actions. 
 
-Note that, for simplicity sake, we consider only TS with no terminal states.
+Note that, for simplicity sake, we consider only TS with no terminal states, i.e., every state has at least 
+one outgoing edge. While this prevents some technical problems from ocurring, it is not a limit to the 
+expressive power of TS: for every state $s$ without outgoing edge, define a transition to a sink state 
+$s_ {sink}$, and then define a self transition from $s_ {sink}$ to itself.
 
 \subsubsection{Resources}
-\cite[Paragraph 2.1.1]{BaKa}
-\subsubsection{Task}
-Define a suitable plain-text representation of TS,  a data type to 
-represent them and implementing the corresponding parsing function. In particular,
-take care of making sure that there are no terminal states, and that there is at least an initial state.
+\cite[Paragraph 2.1]{BaKa}
 
-\todo{Add to the helper function the parsing of only this, and giving back results in case of failure}
+\subsubsection{Task}
+Define:
+\begin{itemize}
+    \item a suitable plain-text representation of TS to provide as input to out tool, and
+    \item a data type to represent them. 
+    \item the type of the set of atomic propositions that can be used to label states of the Transition System.
+\end{itemize}
+Implement: 
+\begin{itemize}
+    \item A parsing function from the plain-text representation to the data type.
+\end{itemize}
+Take care of making sure that there are no terminal states, that there is at least an initial state, 
+and that your formalisation of the set of atomic proposition is respected.
+
+We require that a state is always labelled with itself 
+(i.e., $s_i \in L(s_i)$, which implies $S \subset AP$). This does not mean that the atomic propositions 
+we are considering are only state identifiers.
+
 \subsection{Preliminaries - Linear Temporal Logic}
-To express properties
+To express properties to verify on TS, we consider a temporal extension of propositional logic, i.e., 
+the introduction of temporal modalities on top of propositional logic. In particular, the temporal
+modalities we consider are $\ocircle$ (pronounced ``next'') and $\luntilbase$ (pronounced ``until'').
+
+
+
 
 
 
@@ -258,14 +298,28 @@ Note that none of the described extensions are necessary for a positive grade.
 \todo{write me!}
 
 \subsection{Returning Counterexamples (50P)}
+\todo{write me!}
 
 \subsection{An \textit{On-the-fly} implementation (50P)}
+\todo{write me!}
+
+\section{Bonus Task: Satisfiability Checking (10P)}
+On the \code{--sat} flag, the Model Checker should construct the FSA starting from the input formula
+and perform the fair-cycle detection module on \textbf{this automaton only}. 
+This procedure amounts at verifying whether the formula is satisfiable at all by any string. 
+
+It is up to you to decide whether changing the format of the input file 
+(e.g., by forbidding to include the Transition System in the file) 
+that can go in hand with the \code{--sat} flag.
 
 \section{Bonus Task: Project Management (25P)}
+\todo[inline]{evaluate whether this should be removed}
 
-There is more to a successful project than just writing code. Usually, you also need to write proper documentation, distribute it, etc...
+There is more to a successful project than just writing code. 
+Usually, you also need to write proper documentation, distribute it, etc...
 
-In this section, you will try some project management mechanisms for Haskell: In particular, you will provide documentation for your program, 
+In this section, you will try some project management mechanisms for Haskell: 
+In particular, you will provide documentation for your program, 
 find the coverage of your test-suite and learn more about basic profiling with GHC.
 
 \subsection{Command-Line Interface}
@@ -286,7 +340,7 @@ The program should be able to understand the following flags:
 
 \begin{itemize}
 \item On \code{-h}/\code{--help}, a help message should be displayed, explaining how the program can be invoked correctly.
-\item On \code{--sat}, the input code should \todo{write me!}.
+\item On \code{--ts}, the input transition system
 \item On \code{--extensions}, a list of supported MINI extensions is printed.
 \item Other flags as you see appropriate. (optional. not graded)
 \end{itemize}
@@ -354,7 +408,7 @@ Unit tests and property tests need to be submitted as well, and it must be possi
 \subsubsection{Project Documentation}
 
 The project documentation pdf should cover at least these topics and explain your choices.
-
+\todo[inline]{Add some appropriate questions here}
 \begin{itemize}
 \item Which project build tool is used for the project? (\texttt{cabal} or \texttt{stack})
 \item Which GHC version is used?

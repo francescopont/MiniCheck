@@ -1,0 +1,29 @@
+%%% Logical operators
+%% Common (but not filtered among those not needed)
+\newcommand*{\lnextbase}{\ocircle}
+\newcommand*{\lbackbase}{\circleddash}
+\newcommand*{\lglobbase}{\square}
+\newcommand*{\levenbase}{\Diamond}
+\newcommand*{\luntilbase}{\mathbin{\mathcal{U}}}
+\newcommand*{\lnextsup}[1]{\mathop{\lnextbase^{#1}}}
+\newcommand*{\lbacksup}[1]{\mathop{\lbackbase^{#1}}}
+\newcommand*{\lnextsub}[1]{\mathop{\lnextbase_{#1}}}
+\newcommand*{\lbacksub}[1]{\mathop{\lbackbase_{#1}}}
+\newcommand*{\lnextgen}[2]{\mathop{\lnextbase^{#1}_{#2}}}
+\newcommand*{\lbackgen}[2]{\mathop{\lbackbase^{#1}_{#2}}}
+\newcommand*{\lguntil}[4]{#3 \mathbin{\mathcal{U}^{#1}_{#2}} #4}
+\newcommand*{\luntil}[3]{#2 \mathbin{\mathcal{U}^{#1}} #3}
+\newcommand*{\lgsince}[4]{#3 \mathbin{\mathcal{S}^{#1}_{#2}} #4}
+\newcommand*{\lsince}[3]{#2 \mathbin{\mathcal{S}^{#1}} #3}
+\newcommand*{\lfuntil}[3]{#2 \mathbin{\mathcal{U}(#1)} #3}
+\newcommand*{\lglob}[1]{\mathop{\lglobbase^{#1}}}
+\newcommand*{\leven}[1]{\mathop{\levenbase^{#1}}}
+
+%% LTL
+\newcommand*{\lnext}{\mathop{\lnextbase}}
+\newcommand*{\lluntil}[2]{#1 \mathbin{\mathcal{U}} #2}
+\newcommand*{\llglob}{\mathop{\lglobbase}}
+\newcommand*{\lleven}{\mathop{\levenbase}}
+
+%% probability symbol
+\newcommand*{\llprob}{\mathbb{P}}
