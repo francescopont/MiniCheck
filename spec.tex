@@ -146,7 +146,7 @@ and makes the project smaller, but it's not mandatory. This includes also:
 Model Checking consists of formally and exhaustively verifying a formula 
 against all the possible executions of a particular type of automata. 
 The automata-based approach we are going to follow has been originally proposed by 
-Vardi and Wolper \cite{VarWo}.
+Vardi and Wolper \cite{VarWol}.
 In the following, we provide some preliminary information 
 about the type the formalisms you are required to support, 
 and then present the project to carry out. 
@@ -270,13 +270,13 @@ use an external monadic parsing library from Hackage. Document your choice.
 \begin{algorithm}[H]
     \caption{Automaton Based LTL Model Checking}
     \label{alg:mc}
-    \hspace*{\algorithmicindent} \\emph{Input}: finite transition system TS and LTL formula $\varphi$ (both over $AP$) \\
-    \hspace*{\algorithmicindent} ``yes'' if $TS \vDash \varphi$; otherwise, ``no''
+    \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS and LTL formula $\varphi$ (both over $AP$) \\
+    \hspace*{\algorithmicindent} \emph{Output}: ``yes'' if $TS \vDash \varphi$; otherwise, ``no''
     \begin{algorithmic}[1]
     \State \textbf{Module 1} : Construct an NBA $\mathcal{A}_{\neg \varphi}$ such that $\mathcal{L}_{\omega}(\mathcal{A}_{\neg \varphi}) = $ Words($\neg \varphi$) 
     \State \textbf{Module 2} : Construct the product transition system $TS \oplus \mathcal{A}$; determine if there exists 
                 a path $\pi$ in $TS \oplus \mathcal{A}$ satisfying the acceptance condition of $\mathcal{A}$
-
+    \State
     \If{there exists such a path}
         \State return ``no'' 
     \Else 
@@ -285,8 +285,8 @@ use an external monadic parsing library from Hackage. Document your choice.
     \end{algorithmic}
 \end{algorithm}
   
-It is up to decide how to combine the two plain text representations of the inputs (the TS and the formula), 
-and how to provide them to the Model Checker via some command-line arguments. Are potential issue with 
+It is up to you to decide how to combine the two plain text representations of the inputs (the TS and the formula), 
+and how to provide them to the Model Checker via some command-line arguments. Any potential issue with 
 command line arguments must be treated adequately (e.g., missing arguments, too many arguments, wrong arguments, \dots).
 
 The results of a model check query should be printed on the CLI, together with some additional 
@@ -295,35 +295,34 @@ information you find useful.
 \subsection{Module 1 - Automaton Construction from an LTL formula}
 In this module, you will have to build a \emph{Generalized Nondeterministic Büchi Automaton}(GNBA) 
 that recognizes all and only the traces that satisfy an LTL formula $\varphi$. The algorithm you have to follow 
-is given in \cite[subsubsection* 5.2]{BaKa}. 
+is given in \cite[Paragraph 5.2]{BaKa}. 
 In particular we refer you to the constructive procedure given by the proof of Theorem 5.37.
 
 \todo[inline]{elaborate a little bit on this}
 
 \subsubsection*{Note 1}
 Recall that, in order to proof that the input formula $\varphi$ holds for all initial paths of a TS, we have 
-to verify the TS against the automaton for the \textbf{negation} of the input formula, i.e., an automaton-
-representation for the negated formula $\neg \varphi$.
+to verify the TS against the automaton for the \textbf{negation} of the input formula.
 
 \subsubsection*{Note 2}
-While in module 2 the product transition system is build upon a Non Deterministic Büchi Automaton (NBA), we note 
+While in module 2 the product transition system is build upon a Nondeterministic Büchi Automaton (NBA), we note 
 than a GBA and a NBA differ only for the acceptance condition. This difference can be hidden in the 
-data type you use to represent the automata (e.g., through some higher-order functions), 
-therefore it is not needed to implement the transformation ``GNBA \leadsto NBA'' given by Theorem 4.56, as indicated 
-by the textbook.
+data type you use to represent the automaton (e.g., through some higher-order functions), 
+therefore it is not needed to implement the transformation ``GNBA $\leadsto$ NBA'' given by Theorem 4.56, 
+as indicated by the textbook.
 
 \subsection{Module 2 - Fair-cycle Detection of the product transition System}
 \subsubsection*{Generating the product Transition System}
 This task consists of implementing the generation of the product transition system $TS \oplus \mathcal{A}$
 starting from the input TS and the (generalized) NBA $\mathcal{A}$ built from the input formula in module 1.
-For this purpose, we refer you to the product construction of \cite[subsubsection* 4.4.1]{BaKa}.
+For this purpose, we refer you to the product construction of \cite[Paragraph 4.4.1]{BaKa}.
 
 \subsubsection*{Detecting Fair cycles}
 This task consists of implementing an exploration algorithm for the transition relation of the product 
 automaton. The goal is to find a so called \emph{fair} cycle, i.e., a cycle which satifies the acceptance 
 condition of the underlying NBA. The existance of such cycle, and the reachability of such cycle from an 
 initial state, allows us to conclude that there exist an infinite path of the TS which does not satisfy the input 
-formula $\varphi$. Two algorithms for this purpose are presented in \cite[subsubsection* 4.4.2]{BaKa}.
+formula $\varphi$. Two algorithms for this purpose are presented in \cite[Paragraph 4.4.2]{BaKa}.
 
 \subsubsection*{Note}
 You have to choose an approach to handle the global variables of the fair-cycle detection algorithm. 
@@ -355,7 +354,10 @@ It is required to write at least three unit tests per major component, where maj
 \item MiniCheck cycle detection
 \end{itemize}
 
-\todo[inline]{elaborate on this \dots testing the automaton construction means running some strings on the automaton...}
+To test the automaton costruction function, a recommended way is to run some strings on the automaton, 
+and verify that the acceptance of the string is as expected.
+
+To test the cycle detection algorithm, a smart way is to implement the bonus Section \ref{sec::bonus1}
 \todo[inline]{What can we do with QuickCheck on the model Checker?}
 
 \section{MINI Extensions}
@@ -363,7 +365,12 @@ This section describes some extensions to MiniCheck. Each extension is worth the
 Note that none of the described extensions are necessary for a positive grade.
 
 \subsection{Parsing MINI Programs (100 P)}
-\todo{write me!}
+With this extensions, you are required to extend the modelling power of MiniCheck targeting 
+software verication. While TS are good for expressing hardware models, they may be too low-level 
+to model software programs. To help the user of your version of MiniCheck, you will implement an 
+automated translation procedure for MINI programs into TS.
+
+\subsubsection*{A Note about terminal states}
 
 \subsection{Returning Counterexamples (50P)}
 So far, when a formula does not hold for a TS, MiniCheck cannot help the user to repair the TS. With 
@@ -376,7 +383,7 @@ that the path $s_0s_1s_2 \dots (s_is_{i+1} \dots s_n )^{\omega}$ does not satisf
 \subsection{Source Code Formatting(50P)}
 \todo{write me!}
 
-\section{Bonus Task: Related LTL problems (10P)}
+\section{Bonus Task: Related LTL problems (10P)} \label{sec::bonus1}
 
 \subsection{Satisfiability Checking}
 On the \code{--sat} flag, the Model Checker should construct the FSA starting from the input formula
