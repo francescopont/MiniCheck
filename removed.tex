@@ -1,0 +1,7 @@
+\subsection{Returning Counterexamples (50P)}
+So far, when a formula does not hold for a TS, MiniCheck cannot help the user to repair the TS. With 
+this extension, you are asked to provide a so called counterexample (CE) for the property when the formula is not 
+satisfied, together with the ``false'' result.
+
+A CE is a run of a transition system $s_0 \xrightarrow[]{\alpha_0} s_1 \xrightarrow[]{\alpha_1} s_2 \xrightarrow[]{\alpha_2} \dots s_i (\xrightarrow[]{\alpha_i} s_{i+1} \xrightarrow[]{\alpha_{i+1}} \dots s_n \xrightarrow[]{\alpha_n})^{\omega}$ such 
+that the path $s_0s_1s_2 \dots (s_is_{i+1} \dots s_n )^{\omega}$ does not satisfy $\varphi$.
