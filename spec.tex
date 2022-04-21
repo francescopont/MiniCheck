@@ -14,6 +14,7 @@
 \usepackage{wasysym}
 \usepackage{mathrsfs}
 \usepackage{array}
+\usepackage{xcolor}
 
 %% for logical symbols 
 \input{macros.tex}
@@ -72,13 +73,13 @@
 \thispagestyle{empty}
 \begin{center}
   {\Large \textbf{185.A05 Advanced Functional Programming SS 22}}  \\ [1ex] 
-            Monday, 05/02/2022 
+            Monday, 05/02/2022 \\
                {\Large \textbf{Assignment 5}} \\[.5ex]
               {\Large \textbf{Model Checking Project: MiniCheck}} \\[.5ex]
                  \textbf{All Chapters}  \\ [.75ex]
-           \textbf{Topic:} Building an LTL Model Checker plus Implementing a Choice of Modelling/Verification extension  \\[1ex]
-          \textbf{Submission deadline:} Friday, 06/13/2022  \\
-          \textbf{Contact:} Francesco Pontiggia, francesco.pontiggia@tuwien.ac.at
+           \textbf{Topic:} Building an LTL Model Checker plus Implementing a Choice of Modelling/Verification Extensions  \\[1ex]
+          \textbf{Submission deadline:} Friday, 06/13/2022, noon (no second submission)  \\ [0.5ex]
+          \textbf{Contact:} Francesco Pontiggia, francesco.pontiggia@tuwien.ac.at 
 %          (In case of need, this deadline will be extended (details posted via TISS))
 \end{center}
 
@@ -97,10 +98,12 @@
 \noindent
 The goal of the project is to implement an automata-based LTL Model Checker, \textit{MiniCheck}. 
 The project consists of two parts: the core model checker and the elective modular extensions. 
-In turn, the core model checker consists of: 
+In turn, the core model checker requires resp.~consists of: 
 \begin{itemize}
-    \item an automaton construction module which builds an appropriate automaton from the input LTL formula.
-    \item a cycle detection module which verifies the cartesian product of the automaton and a given Transition System.
+    \item a number of preliminary programming tasks (\textbf{Module 0}, cf.~Section \ref{subsec-ts} and \ref{subsec-ltl}).
+    \item an automaton construction module which builds an appropriate automaton from the input LTL formula (\textbf{Module 1}, cf.~Section \ref{subsec-mca} and \ref{subsec-m1}).
+    \item a cycle detection module which verifies the cartesian product of the automaton and a given Transition System
+          (\textbf{Module 2}, cf.~Section \ref{subsec-mca} and \ref{subsec-m2})).
 \end{itemize}  
 The core is mandatory but is only worth a portion of the points achievable in this project.
 
@@ -115,12 +118,14 @@ It is encouraged to use custom and predefined data structures, as well as extern
 and Haskell language extensions \textbf{where appropriate}. It is not required to get the project to run on g0.
 
 There will be a Q\&A session where help will be provided in case there are troubles with the selected technologies. 
-The date will be announced via TISS news.
+The date will be announced via TUWEL news.
 
 \section{Grading}
 
-The parser and the cycle detection modules of MiniCheck are mandatory. 
-Implementing the core awards up to 200 points. The project presentation will be worth up to 100 points. 
+The preliminary programming tasks with a parser at its core (\textbf{Module 0}), the automaton construction module 
+(\textbf{Module 1)} and
+the cycle detection module (\textbf{Module 2}) of MiniCheck are mandatory. 
+Implementing this core awards up to 200 points. The project presentation will be worth up to 100 points. 
 To gain more points on top of the aforementioned, you can choose from some modelling 
 and verification extensions of the MiniCheck tool.
 
@@ -140,6 +145,8 @@ and makes the project smaller, but it's not mandatory. This includes also:
     \item Automata Theory
     \item Graph Algorithms
 \end{itemize}
+See, e.g., \cite{BaKa} for details (a PDF version is available on the 
+\href{https://github.com/francescopont/MiniCheck.git}{Github repository}).
 
 \section{MiniCheck Core (200P)}
 
@@ -151,21 +158,23 @@ In the following, we provide some preliminary information
 about the type the formalisms you are required to support, 
 and then present the project to carry out. 
 For a complete and deeper introduction to our approach in model checking, 
-we refer the reader to \cite{BaKa}. You can find a PDF version on the 
-\href{https://github.com/francescopont/MiniCheck.git}{Github repository}.
+please, refer to \cite{BaKa} (a PDF version is available on the 
+\href{https://github.com/francescopont/MiniCheck.git}{Github repository}).
 
 
 \subsection{Preliminaries - Transition Systems}
+\label{subsec-ts}
 As modelling formalism, we use \emph{Transition Systems} (TS). They are a particular variant 
-of Finite State Automata which allow to describe adequately both hardware and sofware systems. 
+of \emph{Finite State Automata} which allow to describe adequately both hardware and software systems. 
 They are defined over infinite runs, and they do not have a set of final states. 
 Formally, a TS is a tuple ($S, Act, \rightarrow, I, AP, L$), where 
 \begin{itemize}
-    \item $S$ is a set of states,
-    \item $Act$ is a set of actions,
-    \item $\longrightarrow \subseteq S \times Act \times Act$ is a transition relation,
-    \item $AP$ is a set of atomic propositions, and 
-    \item $L : S \rightarrow 2^{AP}$ is a labelling function
+    \item $S$ is a set of \emph{states},
+    \item $Act$ is a set of \emph{actions},
+    \item $\longrightarrow\,\subseteq S \times Act \times Act$ is a \emph{transition relation},
+    \item $I \subseteq S$ is a set of \emph{initial states}.
+    \item $AP$ is a set of \emph{atomic propositions}, and 
+    \item $L : S \rightarrow 2^{AP}$ is a \emph{labelling function}.
 \end{itemize}
 Actions are used to specify how the system evolves from one state to another. The labelling function 
 maps every state to the set of atomic propositions holding in that state. The initial state is chosen 
@@ -181,16 +190,19 @@ $s_ {sink}$, and then define a self transition from $s_ {sink}$ to itself.
 \subsubsection*{Resources}
 \cite[Paragraph 2.1]{BaKa}
 
-\subsubsection*{Task}
+\subsubsection*{Task 1}
 Define:
 \begin{itemize}
-    \item a suitable plain-text representation of TS to provide as input to out tool, and
+    \item a suitable plain-text representation of TS \textcolor{red}{such that TS written in this representation
+          can be passed as input to your tool}, and
     \item a data type to represent them. 
     \item the type of the set of atomic propositions that can be used to label states of the Transition System.
+          \textcolor{red}{[There needs to be some detail on the kind of atomic propositions, I think; 
+          otherwise, I can not imagine how to meaningfully define a type for something completely unknown.]}
 \end{itemize}
 Implement: 
 \begin{itemize}
-    \item A parsing function from the plain-text representation to the data type.
+    \item A parsing function from the plain-text representation of TS to the data type.
 \end{itemize}
 Take care of making sure that there are no terminal states, that there is at least an initial state, 
 and that your formalisation of the set of atomic proposition is respected. The parsing function should 
@@ -200,14 +212,16 @@ You are allowed to choose one of the parsing approaches presented in the lecture
 use an external monadic parsing library from Hackage. Document your choice.
 
 We require that a state is always labelled with itself 
-(i.e., $s_i \in L(s_i)$, which implies $S \subset AP$). This does not mean that the atomic propositions 
-we are considering are only state identifiers.
+(i.e., $s_i \in L(s_i)$, which implies $S \subset AP$)). This does not mean that the atomic propositions 
+we are considering are only state identifiers \textcolor{red}{[cp.~note above, here needs to be some
+more detail, I think]}).
 
 \subsection{Preliminaries - Linear Temporal Logic}
+\label{subsec-ltl}
 To express properties to verify on Transition Systems, we consider a temporal extension of propositional logic, i.e., 
 the introduction of temporal modalities on top of propositional logic. In particular, the temporal
 modalities we consider are $\ocircle$ (pronounced ``next'') and $\luntilbase$ (pronounced ``until'').
-The atomic proposition $a \in AP$ stands for the the state label $a$ in a TS.
+The atomic proposition $a \in AP$ stands for the state label $a$ in a TS.
 
 \subsubsection*{Syntax}
 Given a set $AP$ of atomic propositions, with $a \in AP$, LTL formulas follow the following syntax: 
@@ -220,10 +234,10 @@ In addition, we introduce the following \emph{derived} Boolean operators:
     &\; \varphi_1 \lor \varphi_2 \equiv \neg (\neg \varphi_1 \land \varphi_2) \\
     &\; \varphi_1 \rightarrow \varphi_2 \equiv \neg \varphi_1 \lor \varphi_2 \\
     &\; \varphi_1 \leftrightarrow  \varphi_2 \equiv (\varphi_1 \rightarrow \varphi_2) \land (\varphi_2 \rightarrow \varphi_1) \\
-    &\; \varphi_1 \oplus  \varphi_2 \equiv (\varphi_1 \land \neg \varphi_2) \land (\varphi_2 \land \neg \varphi_1)\\
+    &\; \varphi_1 \oplus  \varphi_2 \equiv (\varphi_1 \land \neg \varphi_2) \textcolor{red}{\lor} (\varphi_2 \land \neg \varphi_1)\\
 \end{align*}
 
-Likewise, we derive some well-known temporal modalities:
+Likewise, we derive some well-known temporal modalities \textcolor{red}{(pronounced ``eventually'' and ``generally/always", respectively)}:
 \begin{align*}
     &\; \lleven \varphi \equiv \lluntil{\text{true}}{\varphi} \\
     &\; \llglob \varphi \equiv \neg \lleven \neg \varphi \\
@@ -232,10 +246,10 @@ Likewise, we derive some well-known temporal modalities:
 You are required to handle all and only these operators (this excludes the weak until operator, for example).
 
 \subsubsection*{Semantics}
-We define the semantic of LTL formulas over a trace of a Transition System ($S, Act, \rightarrow, I, AP, L$). 
-Given an infinite sequence of states $s_0s_1s_2 \dots$ (i.e. a path) of the TS, 
+We define the semantics of LTL formulas over a trace of a Transition System ($S, Act, \rightarrow, I, AP, L$). 
+Given an infinite sequence of states $s_0s_1s_2 \dots$ (i.e.~a path) of the TS, 
 its trace is just the induced infinite sequence of atomic propositions $ \sigma = L(s_0)L(s_1) \dots \in (2^{AP})^{\omega}$.
-Let $\sigma = A_1A_2 \dots$. Then $\vDash$ (the satisfaction relation) is defined by: 
+Let $\sigma = \textcolor{red}{A_0}A_1A_2 \dots$. Then $\vDash$ (pronounced ``satisfies") is defined by:
 \begin{align*}
     &\; \sigma \vDash \text{ true} \\
     &\; \sigma \vDash a \text{ iff } a \in A_0 \\
@@ -249,12 +263,12 @@ IT holds for a state $s$ if it holds for all paths starting in $s$.
 It holds for a TS if and only if it holds for all the infinite paths 
 starting in an initial state of the TS, or, in other words, if it holds for all initial states.
 
-\subsubsection*{Task}
+\subsubsection*{Task 2}
 Define:
 \begin{itemize}
-    \item a suitable plain-text representation of LTL formulas to provide as input to out tool, and
+    \item a suitable plain-text representation of LTL formulas \textcolor{red}{such that formulas written in this representation can be passed as input to your tool}, and
     \item a data type to represent them. 
-    \item the type of the set of atomic propositions that can be used in the formulas.
+    \item the type of the set of atomic propositions that can be used in the formulas \textcolor{red}{[see above, more detail required?]}.
 \end{itemize}
 Implement: 
 \begin{itemize}
@@ -268,19 +282,21 @@ You are allowed to choose one of the parsing approaches presented in the lecture
 use an external monadic parsing library from Hackage. Document your choice.
 
 \subsubsection*{Resources}
-\cite[Paragraph 5.1(in particular 5.1.1 and 5.1.2)]{BaKa}
+\cite[Paragraph 5.1 (in particular 5.1.1 and 5.1.2)]{BaKa}
 
 \subsection{Preliminaries - The overall Model Checking algorithm}
+\label{subsec-mca}
 \begin{algorithm}[H]
     \caption{Automaton Based LTL Model Checking}
     \label{alg:mc}
     \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS and LTL formula $\varphi$ (both over $AP$) \\
-    \hspace*{\algorithmicindent} \emph{Output}: ``yes'' if $TS \vDash \varphi$; otherwise, ``no''
+    \hspace*{\algorithmicindent} \textcolor{red}{\emph{Output}}: ``yes'' if $TS \vDash \varphi$; otherwise, ``no''
     \begin{algorithmic}[1]
-    \State \textbf{Module 1} : Construct an NBA $\mathcal{A}_{\neg \varphi}$ such that $\mathcal{L}_{\omega}(\mathcal{A}_{\neg \varphi}) = $ Words($\neg \varphi$) 
-    \State \textbf{Module 2} : Construct the product transition system $TS \oplus \mathcal{A}$; determine if there exists 
+    \State \textbf{Module 1}: Construct an NBA $\mathcal{A}_{\neg \varphi}$ such that $\mathcal{L}_{\omega}(\mathcal{A}_{\neg \varphi}) = $ Words($\neg \varphi$) \textcolor{red}{(refer to \cite{BaKa} for details!)}
+    \State \textbf{Module 2}: Construct the product transition system $TS \oplus \mathcal{A}$; determine if there exists 
                 a path $\pi$ in $TS \oplus \mathcal{A}$ satisfying the acceptance condition of $\mathcal{A}$
-    \State
+            \textcolor{red}{[$\oplus$ was introduced in Section \ref{subsec-ltl} as LTL operator; here it is
+            used as operator on automata: some hint seems required.]}
     \If{there exists such a path}
         \State return ``no'' 
     \Else 
@@ -293,40 +309,43 @@ It is up to you to decide how to combine the two plain text representations of t
 and how to provide them to the Model Checker via some command-line arguments. Any potential issue with 
 command line arguments must be treated adequately (e.g., missing arguments, too many arguments, wrong arguments, \dots).
 
-The results of a model check query should be printed on the CLI, together with some additional 
+The results of a model check query should be printed on the CLI (command line interface), together with some additional 
 information you find useful.
 
 \subsection{Module 1 - Automaton Construction from an LTL formula}
+\label{subsec-m1}
 In this module, you will have to build a \emph{Generalized Nondeterministic Büchi Automaton}(GNBA) 
 that recognizes all and only the traces that satisfy an LTL formula $\varphi$. The algorithm you have to follow 
-is given in \cite[Paragraph 5.2]{BaKa}. 
+is given in \cite[Section 5.2]{BaKa}. 
 In particular we refer you to the constructive procedure given by the proof of Theorem 5.37.
 
 \todo[inline]{elaborate a little bit on this}
 
 \subsubsection*{Note 1}
-Recall that, in order to proof that the input formula $\varphi$ holds for all initial paths of a TS, we have 
-to verify the TS against the automaton for the \textbf{negation} of the input formula.
+Recall that, in order to prove that the input formula $\varphi$ holds for all initial paths of a TS, we have 
+to verify the TS against the automaton for the \textbf{negation} of the input formula, i.e., an automaton-
+representation for the negated formula $\neg \varphi$.
 
 \subsubsection*{Note 2}
 While in module 2 the product transition system is build upon a Nondeterministic Büchi Automaton (NBA), we note 
 than a GBA and a NBA differ only for the acceptance condition. This difference can be hidden in the 
-data type you use to represent the automaton (e.g., through some higher-order functions), 
-therefore it is not needed to implement the transformation ``GNBA $\leadsto$ NBA'' given by Theorem 4.56, 
-as indicated by the textbook.
+data type you use to represent the automata (e.g., through some higher-order functions), 
+therefore it is not needed to implement the transformation ``GNBA $\leadsto$ NBA'' given by Theorem 4.56, as indicated 
+by the textbook.
 
 \subsection{Module 2 - Fair-cycle Detection of the product transition System}
+\label{subsec-m2}
 \subsubsection*{Generating the product Transition System}
 This task consists of implementing the generation of the product transition system $TS \oplus \mathcal{A}$
 starting from the input TS and the (generalized) NBA $\mathcal{A}$ built from the input formula in module 1.
-For this purpose, we refer you to the product construction of \cite[Paragraph 4.4.1]{BaKa}.
+For this purpose, we refer you to the product construction of \cite[Section 4.4.1]{BaKa}.
 
 \subsubsection*{Detecting Fair cycles}
 This task consists of implementing an exploration algorithm for the transition relation of the product 
 automaton. The goal is to find a so called \emph{fair} cycle, i.e., a cycle which satifies the acceptance 
 condition of the underlying NBA. The existance of such cycle, and the reachability of such cycle from an 
 initial state, allows us to conclude that there exist an infinite path of the TS which does not satisfy the input 
-formula $\varphi$. Two algorithms for this purpose are presented in \cite[Paragraph 4.4.2]{BaKa}.
+formula $\varphi$. Two algorithms for this purpose are presented in \cite[Section 4.4.2]{BaKa}.
 
 \subsubsection*{Note}
 You have to choose an approach to handle the global variables of the fair-cycle detection algorithm. 
@@ -451,7 +470,6 @@ not satisfied. A CE is a sequence of states of the TS of the form $s_0s_1 \dots 
 such that $L(s_0)L(s_1) \dots (L(s_n) \dots L(s_m) )^{\omega}$ does not satisfy the input property $\varphi$.
 
 \section{Bonus Task: Project Management (25P)}
-\todo[inline]{evaluate whether this should be removed}
 
 There is more to a successful project than just writing code. 
 Usually, you also need to write proper documentation, distribute it, etc...
