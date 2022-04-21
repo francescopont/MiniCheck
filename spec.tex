@@ -98,7 +98,7 @@
 \noindent
 The goal of the project is to implement an automata-based LTL Model Checker, \textit{MiniCheck}. 
 The project consists of two parts: the core model checker and the elective modular extensions. 
-In turn, the core model checker requires resp.~consists of: 
+In turn, the core model checker requires resp.: 
 \begin{itemize}
     \item a number of preliminary programming tasks (\textbf{Module 0}, cf.~Section \ref{subsec-ts} and \ref{subsec-ltl}).
     \item an automaton construction module which builds an appropriate automaton from the input LTL formula (\textbf{Module 1}, cf.~Section \ref{subsec-mca} and \ref{subsec-m1}).
@@ -193,8 +193,8 @@ $s_ {sink}$, and then define a self transition from $s_ {sink}$ to itself.
 \subsubsection*{Task 1}
 Define:
 \begin{itemize}
-    \item a suitable plain-text representation of TS \textcolor{red}{such that TS written in this representation
-          can be passed as input to your tool}, and
+    \item a suitable plain-text representation of TS such that TS written in this representation
+          can be passed as input to your tool, and
     \item a data type to represent them. 
     \item the type of the set of atomic propositions that can be used to label states of the Transition System.
           \textcolor{red}{[There needs to be some detail on the kind of atomic propositions, I think; 
@@ -234,10 +234,10 @@ In addition, we introduce the following \emph{derived} Boolean operators:
     &\; \varphi_1 \lor \varphi_2 \equiv \neg (\neg \varphi_1 \land \varphi_2) \\
     &\; \varphi_1 \rightarrow \varphi_2 \equiv \neg \varphi_1 \lor \varphi_2 \\
     &\; \varphi_1 \leftrightarrow  \varphi_2 \equiv (\varphi_1 \rightarrow \varphi_2) \land (\varphi_2 \rightarrow \varphi_1) \\
-    &\; \varphi_1 \oplus  \varphi_2 \equiv (\varphi_1 \land \neg \varphi_2) \textcolor{red}{\lor} (\varphi_2 \land \neg \varphi_1)\\
+    &\; \varphi_1 \oplus  \varphi_2 \equiv (\varphi_1 \land \neg \varphi_2) \lor (\varphi_2 \land \neg \varphi_1)\\
 \end{align*}
 
-Likewise, we derive some well-known temporal modalities \textcolor{red}{(pronounced ``eventually'' and ``generally/always", respectively)}:
+Likewise, we derive some well-known temporal modalities (pronounced ``eventually'' and ``generally/always", respectively):
 \begin{align*}
     &\; \lleven \varphi \equiv \lluntil{\text{true}}{\varphi} \\
     &\; \llglob \varphi \equiv \neg \lleven \neg \varphi \\
@@ -249,7 +249,7 @@ You are required to handle all and only these operators (this excludes the weak 
 We define the semantics of LTL formulas over a trace of a Transition System ($S, Act, \rightarrow, I, AP, L$). 
 Given an infinite sequence of states $s_0s_1s_2 \dots$ (i.e.~a path) of the TS, 
 its trace is just the induced infinite sequence of atomic propositions $ \sigma = L(s_0)L(s_1) \dots \in (2^{AP})^{\omega}$.
-Let $\sigma = \textcolor{red}{A_0}A_1A_2 \dots$. Then $\vDash$ (pronounced ``satisfies") is defined by:
+Let $\sigma = A_0A_1A_2 \dots$. Then $\vDash$ (pronounced ``satisfies") is defined by:
 \begin{align*}
     &\; \sigma \vDash \text{ true} \\
     &\; \sigma \vDash a \text{ iff } a \in A_0 \\
@@ -266,7 +266,7 @@ starting in an initial state of the TS, or, in other words, if it holds for all 
 \subsubsection*{Task 2}
 Define:
 \begin{itemize}
-    \item a suitable plain-text representation of LTL formulas \textcolor{red}{such that formulas written in this representation can be passed as input to your tool}, and
+    \item a suitable plain-text representation of LTL formulas such that formulas written in this representation can be passed as input to your tool, and
     \item a data type to represent them. 
     \item the type of the set of atomic propositions that can be used in the formulas \textcolor{red}{[see above, more detail required?]}.
 \end{itemize}
@@ -290,9 +290,9 @@ use an external monadic parsing library from Hackage. Document your choice.
     \caption{Automaton Based LTL Model Checking}
     \label{alg:mc}
     \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS and LTL formula $\varphi$ (both over $AP$) \\
-    \hspace*{\algorithmicindent} \textcolor{red}{\emph{Output}}: ``yes'' if $TS \vDash \varphi$; otherwise, ``no''
+    \hspace*{\algorithmicindent} \emph{Output}: ``yes'' if $TS \vDash \varphi$; otherwise, ``no''
     \begin{algorithmic}[1]
-    \State \textbf{Module 1}: Construct an NBA $\mathcal{A}_{\neg \varphi}$ such that $\mathcal{L}_{\omega}(\mathcal{A}_{\neg \varphi}) = $ Words($\neg \varphi$) \textcolor{red}{(refer to \cite{BaKa} for details!)}
+    \State \textbf{Module 1}: Construct an NBA $\mathcal{A}_{\neg \varphi}$ such that $\mathcal{L}_{\omega}(\mathcal{A}_{\neg \varphi}) = $ Words($\neg \varphi$) (refer to \cite{BaKa} for details!)
     \State \textbf{Module 2}: Construct the product transition system $TS \oplus \mathcal{A}$; determine if there exists 
                 a path $\pi$ in $TS \oplus \mathcal{A}$ satisfying the acceptance condition of $\mathcal{A}$
             \textcolor{red}{[$\oplus$ was introduced in Section \ref{subsec-ltl} as LTL operator; here it is
@@ -323,8 +323,8 @@ In particular we refer you to the constructive procedure given by the proof of T
 
 \subsubsection*{Note 1}
 Recall that, in order to prove that the input formula $\varphi$ holds for all initial paths of a TS, we have 
-to verify the TS against the automaton for the \textbf{negation} of the input formula, i.e., an automaton-
-representation for the negated formula $\neg \varphi$.
+to verify the TS against the automaton for the \textbf{negation} of the input formula, i.e., an automaton-representation 
+for the negated formula $\neg \varphi$.
 
 \subsubsection*{Note 2}
 While in module 2 the product transition system is build upon a Nondeterministic Büchi Automaton (NBA), we note 
@@ -417,30 +417,91 @@ Computation Tree Logic (CTL) thus allows to express properties for \emph{some} o
 that start in a state. For this purpose, it features two operators: an existential path quantifier ($\exists$) 
 and a universal path quantifier ($\forall$). 
 
+As modelling formalism, you are required to use the same as in the core modules.
+
 \subsubsection*{CTL Syntax}
 As  in LTL, at the bottom of CTL there are atomic propositions $AP$ which represent the labels for the states in a TS.
 \begin{align*}
-    &\; \emph{(state) formulae} &\; \Phi ::= \text{true} \mid a \mid \Phi_1 \land \Phi_2 \mid \neg \Phi \mid \exists \varphi \mid \forall \varphi \\
-    &\; \emph{path formulas} &\; \lnext{\Phi} \mid \lluntil{\Phi_1}{\Phi_2}
+    &\; \emph{(state) formulas} &\; \Phi ::= \text{true} \mid a \mid \Phi_1 \land \Phi_2 \mid \neg \Phi \mid \exists \varphi \mid \forall \varphi \\
+    &\; \emph{path formulas}    &\; \Phi ::= \lnext{\Phi} \mid \lluntil{\Phi_1}{\Phi_2}
 \end{align*}
-Greek capital letters denote CTL (state) formulae, whereas lowercase Greek letters denote CTL path formulae.
+Greek capital letters denote CTL (state) formulas, whereas lowercase Greek letters denote CTL path formulas. 
+A well defined CTL formula is a CTL state formula.
+
+As in LTL, you are required to implement also the derived Boolean operators and the temporal modalities ``Eventually'' and ``Always''.
+\todo[inline]{add the translation of this formulas}
 
 \subsubsection*{CTL Semantics}
-Given atomic proposition $a \in AP$, $TS = (S, Act, \rightarrow, I, AP, L)$, state $s \in S$, CTL state formulae 
+Given atomic proposition $a \in AP$, $TS = (S, Act, \rightarrow, I, AP, L)$, state $s \in S$, CTL state formulas 
 $\Phi, \Psi$, CTL path formula $\varphi$, the semantics of CTL is defined in terms of the following 
 satisfaction relation $\vDash$ for state $s$ (compare it with the LTL satisfaction relation, which was defined over a trace $\sigma$):
 \begin{align*}
     &\; \sigma \vDash \text{true} \\
     &\; \sigma \vDash a \text{ iff } a \in L(s) \\ 
     &\; \sigma \vDash \neg \Phi \text{ iff not } s \vDash \Phi \\
-    &\; \sigma \vDash \Phi \land \Psi \text{ iff } (s \vDash \Phi) \text{ and } (s \vDash)
+    &\; \sigma \vDash \Phi \land \Psi \text{ iff } (s \vDash \Phi) \text{ and } (s \vDash \Psi) \\
+    &\; \sigma \vDash \exists \varphi \text{ iff } \pi \vDash \varphi \text{ for some } \pi \in Paths(s) \\ 
+    &\; \sigma \vDash \forall \varphi \text{ iff } \pi \vDash \varphi \text{ for all } \pi \in Paths(s) \\ 
 \end{align*}
-\todo[inline]{end definition of CTL satisfaction relation}
+
+Given a path $\pi$, $\vDash$ is defined for path formulas as follows: 
+\begin{align*}
+    &\; \pi \vDash \lnext{\Phi} \text{ iff } \pi[1]  \vDash \Phi \\ 
+    &\; \pi \vDash \lluntil{\Phi}{\Psi} \text{ iff } \exists j \geqslant 0. (\pi[j]  \vDash \Psi \land (\forall 0 \leqslant k < j. \pi[k]  \vDash \Phi))
+\end{align*}
+
+A TS satisfies CTL formula $\Phi$ if and only if $\Phi$ holds for all initial states.
+
+\subsubsection*{Task}
+Define:
+\begin{itemize}
+    \item a suitable plain-text representation of CTL formulas such that formulas written in this representation can be passed as input to your tool, and 
+    \item a data type to represent them.
+    \item the type of the set of atomic propositions ($APs$) that can be used in the formulas (the same reasoning for LTL $APs$ applies).
+\end{itemize}
+
 
 \subsubsection*{Model Checking procedure}
+The model checking procedure for CTL formulas differs completely from LTL verification. 
+It's essentially based on a bottom-up traversal of the parse tree of the formula at hand, 
+and it is considered way more efficient and straightforward, since it does not involve any notion of 
+corresponding automaton for the input formula. Instead, given a TS and a CTL formula $\Phi$, to verify 
+whether TS $\vDash \Phi$, we establish whether $\Phi$ is valid in each initial state $s$ of TS. 
+Therefore, the procedure is roughly composed of two steps: 
+\begin{itemize}
+    \item computing the set $Sat(\Phi)$ of all states satisfying $\Phi$ (recursively), and
+    \item checking whether all initial states $s \in I$ belong to $Sat(\Phi)$; 
+\end{itemize}
+In other words, TS $\vDash \Phi$ if and only if $I \subseteq Sat(\Phi)$.
 
-\todo[inline]{write me}
-\todo[inline]{restrict to existential quantification for reduce the burden of the project}
+\subsubsection*{The general algorithm}
+The following algorithm sketches the procedure, where it makes use of the set $Sub(\Phi)$ of subformulas of $\Phi$.
+\label{subsec-CTLmca}
+\begin{algorithm}[H]
+    \caption{CTL Model Checking}
+    \label{alg:CTLmc}
+    \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS and CTL formula $\Phi$ (both over $AP$) \\
+    \hspace*{\algorithmicindent} \emph{Output}: ``yes'' if $TS \vDash \Phi$; otherwise, ``no''
+    \begin{algorithmic}[1]
+    \Function{$SatFun$}{$\phi$}
+        \If{$\phi$ contains state subformulas}
+            \State $Sat(\psi_1) = SatFun(\psi_1)$ 
+            \State $Sat(\psi_2) = SatFun(\psi_2)$ 
+            for children nodes $\psi_1, \psi_2$ of the parse tree of $\phi$, the so called \emph{maximal proper subformulas}
+            \State combine $Sat(\psi_1), Sat(\psi_2)$ depending on the operator of $\phi$ ($\land, \exists\lnext, \exists\mathbin{\mathcal{U}}, \exists\llglob$).
+        \Else
+            \State compute directly the set $Sat(\phi)$.
+        \EndIf
+        \State return $Sat(\phi)$.
+    \EndFunction
+    \State return $I \subseteq Sat(\Phi)$.
+    \end{algorithmic}
+\end{algorithm}
+
+\subsubsection*{Definition of $SatFun$}
+
+
+\subsubsection*{}
 
 
 \section{Bonus Task: Related LTL problems (10P)} \label{sec::bonus1}
