@@ -98,7 +98,7 @@
 \noindent
 The goal of the project is to implement an automata-based LTL Model Checker, \textit{MiniCheck}. 
 The project consists of two parts: the core model checker and the elective modular extensions. 
-In turn, the core model checker requires resp.~consists of: 
+In turn, the core model checker requires resp.: 
 \begin{itemize}
     \item a number of preliminary programming tasks (\textbf{Module 0}, cf.~Section \ref{subsec-ts} and \ref{subsec-ltl}).
     \item an automaton construction module which builds an appropriate automaton from the input LTL formula (\textbf{Module 1}, cf.~Section \ref{subsec-mca} and \ref{subsec-m1}).
@@ -193,8 +193,8 @@ $s_ {sink}$, and then define a self transition from $s_ {sink}$ to itself.
 \subsubsection*{Task 1}
 Define:
 \begin{itemize}
-    \item a suitable plain-text representation of TS \textcolor{red}{such that TS written in this representation
-          can be passed as input to your tool}, and
+    \item a suitable plain-text representation of TS such that TS written in this representation
+          can be passed as input to your tool, and
     \item a data type to represent them. 
     \item the type of the set of atomic propositions that can be used to label states of the Transition System.
           \textcolor{red}{[There needs to be some detail on the kind of atomic propositions, I think; 
@@ -234,10 +234,10 @@ In addition, we introduce the following \emph{derived} Boolean operators:
     &\; \varphi_1 \lor \varphi_2 \equiv \neg (\neg \varphi_1 \land \varphi_2) \\
     &\; \varphi_1 \rightarrow \varphi_2 \equiv \neg \varphi_1 \lor \varphi_2 \\
     &\; \varphi_1 \leftrightarrow  \varphi_2 \equiv (\varphi_1 \rightarrow \varphi_2) \land (\varphi_2 \rightarrow \varphi_1) \\
-    &\; \varphi_1 \oplus  \varphi_2 \equiv (\varphi_1 \land \neg \varphi_2) \textcolor{red}{\lor} (\varphi_2 \land \neg \varphi_1)\\
+    &\; \varphi_1 \oplus  \varphi_2 \equiv (\varphi_1 \land \neg \varphi_2) \lor (\varphi_2 \land \neg \varphi_1)\\
 \end{align*}
 
-Likewise, we derive some well-known temporal modalities \textcolor{red}{(pronounced ``eventually'' and ``generally/always", respectively)}:
+Likewise, we derive some well-known temporal modalities (pronounced ``eventually'' and ``generally/always", respectively):
 \begin{align*}
     &\; \lleven \varphi \equiv \lluntil{\text{true}}{\varphi} \\
     &\; \llglob \varphi \equiv \neg \lleven \neg \varphi \\
@@ -247,7 +247,7 @@ Likewise, we derive some well-known temporal modalities \textcolor{red}{(pronoun
 We define the semantics of LTL formulas over a trace of a Transition System ($S, Act, \rightarrow, I, AP, L$). 
 Given an infinite sequence of states $s_0s_1s_2 \dots$ (i.e.~a path) of the TS, 
 its trace is just the induced infinite sequence of atomic propositions $ \sigma = L(s_0)L(s_1) \dots \in (2^{AP})^{\omega}$.
-Let $\sigma = \textcolor{red}{A_0}A_1A_2 \dots$. Then $\vDash$ (pronounced ``satisfies") is defined by: 
+Let $\sigma = A_0A_1A_2 \dots$. Then $\vDash$ (pronounced ``satisfies") is defined by: 
 \begin{align*}
     &\; \sigma \vDash \text{ true} \\
     &\; \sigma \vDash a \text{ iff } a \in A_0 \\
@@ -262,7 +262,7 @@ starting in an initial state of the TS.
 \subsubsection*{Task 2}
 Define:
 \begin{itemize}
-    \item a suitable plain-text representation of LTL formulas \textcolor{red}{such that formulas written in this representation can be passed as input to your tool}, and
+    \item a suitable plain-text representation of LTL formulas such that formulas written in this representation can be passed as input to your tool}, and
     \item a data type to represent them. 
     \item the type of the set of atomic propositions that can be used in the formulas \textcolor{red}{[see above, more detail required?]}.
 \end{itemize}
@@ -286,9 +286,9 @@ use an external monadic parsing library from Hackage. Document your choice.
     \caption{Automaton Based LTL Model Checking}
     \label{alg:mc}
     \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS and LTL formula $\varphi$ (both over $AP$) \\
-    \hspace*{\algorithmicindent} \textcolor{red}{\emph{Output}}: ``yes'' if $TS \vDash \varphi$; otherwise, ``no''
+    \hspace*{\algorithmicindent} \emph{Output}: ``yes'' if $TS \vDash \varphi$; otherwise, ``no''
     \begin{algorithmic}[1]
-    \State \textbf{Module 1}: Construct an NBA $\mathcal{A}_{\neg \varphi}$ such that $\mathcal{L}_{\omega}(\mathcal{A}_{\neg \varphi}) = $ Words($\neg \varphi$) \textcolor{red}{(refer to \cite{BaKa} for details!)}
+    \State \textbf{Module 1}: Construct an NBA $\mathcal{A}_{\neg \varphi}$ such that $\mathcal{L}_{\omega}(\mathcal{A}_{\neg \varphi}) = $ Words($\neg \varphi$) (refer to \cite{BaKa} for details!)
     \State \textbf{Module 2}: Construct the product transition system $TS \oplus \mathcal{A}$; determine if there exists 
                 a path $\pi$ in $TS \oplus \mathcal{A}$ satisfying the acceptance condition of $\mathcal{A}$
             \textcolor{red}{[$\oplus$ was introduced in Section \ref{subsec-ltl} as LTL operator; here it is
@@ -302,7 +302,7 @@ use an external monadic parsing library from Hackage. Document your choice.
 \end{algorithm}
   
 It is up to you to decide how to combine the two plain text representations of the inputs (the TS and the formula), 
-and how to provide them to the Model Checker via some command-line arguments. \textcolor{red}{Any} potential issue with 
+and how to provide them to the Model Checker via some command-line arguments. Any potential issue with 
 command line arguments must be treated adequately (e.g., missing arguments, too many arguments, wrong arguments, \dots).
 
 The results of a model check query should be printed on the CLI (command line interface), together with some additional 
@@ -310,17 +310,17 @@ information you find useful.
 
 \subsection{Module 1 - Automaton Construction from an LTL formula}
 \label{subsec-m1}
-In this module, you will have to build a \emph{Generalized Nondeterministic Büchi Automaton}(GNBA) 
+In this module, you will have to build a \emph{Generalized Nondeterministic Büchi Automaton} (GNBA) 
 that recognizes all and only the traces that satisfy an LTL formula $\varphi$. The algorithm you have to follow 
-is given in \cite[Section 5.2]{BaKa}. 
+is given in \cite[Paragraph 5.2]{BaKa}. 
 In particular we refer you to the constructive procedure given by the proof of Theorem 5.37.
 
 \todo[inline]{elaborate a little bit on this}
 
 \subsubsection*{Note 1}
 Recall that, in order to prove that the input formula $\varphi$ holds for all initial paths of a TS, we have 
-to verify the TS against the automaton for the \textbf{negation} of the input formula, i.e., an automaton-
-representation for the negated formula $\neg \varphi$.
+to verify the TS against the automaton for the \textbf{negation} of the input formula, i.e., an automaton-representation 
+for the negated formula $\neg \varphi$.
 
 \subsubsection*{Note 2}
 While in module 2 the product transition system is build upon a Non Deterministic Büchi Automaton (NBA), we note 
@@ -413,7 +413,7 @@ It is up to you to decide whether changing the format of the input file(s)
 that can go in hand with the \code{--sat} and \code{--val} flags.
 
 \subsubsection*{Resources}
-\cite[Paragraph 5.2.2]{BaKa}
+\cite[Section 5.2.2]{BaKa}
 
 
 \section{Bonus Task: Project Management (25P)}
