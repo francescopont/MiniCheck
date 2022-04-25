@@ -171,7 +171,7 @@ Formally, a TS is a tuple ($S, Act, \rightarrow, I, AP, L$), where
 \begin{itemize}
     \item $S$ is a set of \emph{states},
     \item $Act$ is a set of \emph{actions},
-    \item $\longrightarrow\,\subseteq S \times Act \times Act$ is a \emph{transition relation},
+    \item $\longrightarrow\,\subseteq S \times Act \times S$ is a \emph{transition relation},
     \item $I \subseteq S$ is a set of \emph{initial states}.
     \item $AP$ is a set of \emph{atomic propositions}, and 
     \item $L : S \rightarrow 2^{AP}$ is a \emph{labelling function}.
@@ -245,6 +245,11 @@ Likewise, we derive some well-known temporal modalities (pronounced ``eventually
 
 You are required to handle all and only these operators (this excludes the weak until operator, for example).
 
+\subsubsection*{Hint about derived operators}
+If your code translates formulas with derived operators into formulas 
+with only base operators through these equivalence rules, you will have implemented support of 
+derived operators for free.
+
 \subsubsection*{Semantics}
 We define the semantics of LTL formulas over a trace of a Transition System ($S, Act, \rightarrow, I, AP, L$). 
 Given an infinite sequence of states $s_0s_1s_2 \dots$ (i.e.~a path) of the TS, 
@@ -317,9 +322,90 @@ information you find useful.
 In this module, you will have to build a \emph{Generalized Nondeterministic Büchi Automaton}(GNBA) 
 that recognizes all and only the traces that satisfy an LTL formula $\varphi$. The algorithm you have to follow 
 is given in \cite[Section 5.2]{BaKa}. 
-In particular we refer you to the constructive procedure given by the proof of Theorem 5.37.
+\todo[inline]{this part has been added recently} 
+We will now outline the main definitions and steps involved in the construction.
 
-\todo[inline]{elaborate a little bit on this}
+\subsubsection*{Generalized NBA}
+A GNBA is a tuple $\mathcal{G} := (Q, \Sigma, \delta, Q_0, \mathcal{F})$ where:
+\begin{itemize}
+    \item $Q$ is the (finite) set of states.
+    \item $\Sigma$ is the alphabet (and in our case it will always be the set $2^{AP}$).
+    \item $Q_0 \subseteq Q$ is the set of initial states.
+    \item $\delta : Q \times 2^{Q}$ is the (nondeterministic) transition relation 
+    \item $\mathcal{F}$ is a subset of $2^{Q}$.
+\end{itemize}
+The definition of a GNBA is the same as the definition of a nondeterministic Buechi Automaton, apart from $\mathcal{F}$.
+$\mathcal{F}$ is the so called \emph{set of acceptance sets}. The accepted language $\mathcal{L}_{\omega}(\mathcal{G})$
+consists of all $\omega$-words that have at least one infinite run $q_0q_1 \dots$ in $\mathcal{G}$ such that 
+for each acceptance set $F \in \mathcal{F}$ there are infinitely many indices $i$ with $q_i \in F$.
+
+\subsubsection*{Closure of a LTL formula $\varphi$}
+The \emph{closure} of a LTL formula $\varphi$ is the set $Cl(\varphi)$ which contains all subformulas $\psi$ 
+of $\varphi$ as well as their negations. Formally , $Cl(\varphi)$ is the smallest set such that: 
+\begin{itemize}
+    \item $\varphi \in Cl(\varphi)$,
+    \item $a \in AP, a \in Cl(\varphi)$, for all $a \in AP$,
+    \item if $\psi \in Cl(\varphi)$, and $\psi \neq \not \theta$, then $\not \psi \in Cl(\varphi)$ (we identify $\not \not \psi$ with $\psi$),
+    \item if $\not \psi \in Cl(\varphi)$, then $\psi \in Cl(\varphi)$,
+    \item if $\psi \land \theta \in Cl(\varphi)$, then $\psi, \theta \in Cl(\varphi)$,
+    \item if $\lnext{\psi} \in Cl(\varphi)$, then $\psi \in Cl(\varphi)$,
+    \item if $\lluntil{\psi}{\theta} \in Cl(\varphi)$, then $\psi, \theta \in Cl(\varphi)$.
+\end{itemize}
+
+\subsubsection*{Elementary set of formulas}
+A set $B \subseteq Cl(\varphi)$ is called elementary if:
+\begin{enumerate}
+    \item it is \emph{consistent} with respect to propositional logic, i.e., for all 
+            $\varphi_1 \land \varphi_2, \psi \in Cl(\varphi)$:
+            \begin{itemize}
+                \item $\varphi_1 \land \varphi_2 \in B$ if and only if $\varphi_1 \in B$ and $\varphi_2 \in B$.
+                \item $\psi \in B$ implies $\neg \psi \notin B$ 
+                \item true $\in Cl(\varphi)$ implies true $\in Cl(\varphi)$.
+            \end{itemize}
+    \item it is \emph{locally consistent} with respect to the until operator, i.e., for all 
+            $\lluntil{\varphi_1}{\varphi_2} \in Cl(\varphi)$:
+            \begin{itemize}
+                \item $\varphi_2 \in B$ implies $\lluntil{\varphi_1}{\varphi_2} \in B$
+                \item $\lluntil{\varphi_1}{\varphi_2} \in B$ and $\varphi_2 \notin B$ implies $\varphi_1 \in B$.
+            \end{itemize}
+    \item it is \emph{maximal} i.e., for all $\psi \in Cl(\varphi)$:
+            \begin{itemize}
+                \item $\psi \notin B$ implies $\neg \psi \in B$.
+            \end{itemize}
+\end{enumerate}
+
+\subsubsection*{GNBA for LTL}
+Given a LTL formula $\varphi$ over AP, we define as follows the GNBA $\mathcal{G}_{\varphi}$ which recognizes all
+and only the strings over the alphabet $2^{AP}$ that satisfy $\varphi$.
+
+$\mathcal{G}_{\varphi} := (Q, 2^{AP}, \delta, Q_0, \mathcal{F})$ such that: 
+\begin{itemize}
+    \item $Q$ is the set of all the elementary sets of formulae $B \subseteq Cl(\varphi)$,
+    \item $Q_0 = \{ B \in Q \mid \varphi \in B\}$,
+    \item $\mathcal{F} = \{ F_{\lluntil{\varphi_1}{\varphi_2}} \mid \lluntil{\varphi_1}{\varphi_2} \in Cl(\varphi) \} $, where 
+            \begin{itemize}
+                \item $F_{\lluntil{\varphi_1}{\varphi_2}} = \{ B \in Q \mid \lluntil{\varphi_1}{\varphi_2} \notin B$ or $\varphi_2 \in B \}$.
+            \end{itemize}
+\end{itemize}
+, 
+The transition  relation $\delta : Q \times 2^{AP} \rightarrow 2^Q$ is defined as follows;
+(given an elementary set $B$, i.e., a state of the automaton, and a set of $AP$ A):
+\begin{itemize}
+    \item if $A \neq B \cap AP$, then $\delta(B,A) = \varnothing$,
+    \item if $A = B \cap AP$, then $\delta(B,A)$ is the set of all elementary sets of formulas $B^{'}$ such that 
+            \begin{enumerate}
+                \item for all $\lnext{\psi} \in Cl(\varphi)$, $\lnext{\psi} \in B$ if and only if $\psi \in B^{'}$,
+                \item for all $\lluntil{\varphi_1}{\varphi_2} \in Cl(\varphi)$, 
+                
+                
+                    \begin{center}
+                        $\lluntil{\varphi_1}{\varphi_2} \in B$ if and only if $(\varphi_2 \in B \lor (\varphi_1 \in B \land \lluntil{\varphi_1}{\varphi_2} \in B^{'}))$
+                    \end{center}
+            \end{enumerate}
+\end{itemize}
+
+
+
 
 \subsubsection*{Note 1}
 Recall that, in order to prove that the input formula $\varphi$ holds for all initial paths of a TS, we have 
@@ -474,8 +560,8 @@ Therefore, the procedure is roughly composed of two steps:
 \end{itemize}
 In other words, TS $\vDash \Phi$ if and only if $I \subseteq Sat(\Phi)$.
 
-\subsubsection*{The general algorithm}
-The following algorithm sketches the procedure, where it makes use of the set $Sub(\Phi)$ of subformulas of $\Phi$.
+
+The following algorithm sketches the procedure. 
 \label{subsec-CTLmca}
 \begin{algorithm}[H]
     \caption{CTL Model Checking}
@@ -501,7 +587,7 @@ The following algorithm sketches the procedure, where it makes use of the set $S
 \subsubsection*{Definition of $SatFun$}
 
 
-\subsubsection*{}
+\subsubsection*{Task}
 
 
 \section{Bonus Task: Related LTL problems (10P)} \label{sec::bonus1}
