@@ -345,8 +345,8 @@ of $\varphi$ as well as their negations. Formally , $Cl(\varphi)$ is the smalles
 \begin{itemize}
     \item $\varphi \in Cl(\varphi)$,
     \item $a \in AP, a \in Cl(\varphi)$, for all $a \in AP$,
-    \item if $\psi \in Cl(\varphi)$, and $\psi \neq \not \theta$, then $\not \psi \in Cl(\varphi)$ (we identify $\not \not \psi$ with $\psi$),
-    \item if $\not \psi \in Cl(\varphi)$, then $\psi \in Cl(\varphi)$,
+    \item if $\psi \in Cl(\varphi)$, and $\psi \neq \neg \theta$, then $\neg \psi \in Cl(\varphi)$ (we identify $\not \not \psi$ with $\psi$),
+    \item if $\neg \psi \in Cl(\varphi)$, then $\psi \in Cl(\varphi)$,
     \item if $\psi \land \theta \in Cl(\varphi)$, then $\psi, \theta \in Cl(\varphi)$,
     \item if $\lnext{\psi} \in Cl(\varphi)$, then $\psi \in Cl(\varphi)$,
     \item if $\lluntil{\psi}{\theta} \in Cl(\varphi)$, then $\psi, \theta \in Cl(\varphi)$.
@@ -387,7 +387,7 @@ $\mathcal{G}_{\varphi} := (Q, 2^{AP}, \delta, Q_0, \mathcal{F})$ such that:
                 \item $F_{\lluntil{\varphi_1}{\varphi_2}} = \{ B \in Q \mid \lluntil{\varphi_1}{\varphi_2} \notin B$ or $\varphi_2 \in B \}$.
             \end{itemize}
 \end{itemize}
-, 
+
 The transition  relation $\delta : Q \times 2^{AP} \rightarrow 2^Q$ is defined as follows;
 (given an elementary set $B$, i.e., a state of the automaton, and a set of $AP$ A):
 \begin{itemize}
