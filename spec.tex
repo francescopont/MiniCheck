@@ -77,9 +77,10 @@
                {\Large \textbf{Assignment 5}} \\[.5ex]
               {\Large \textbf{Model Checking Project: MiniCheck}} \\[.5ex]
                  \textbf{All Chapters}  \\ [.75ex]
-           \textbf{Topic:} Building an LTL Model Checker plus Implementing a Choice of Modelling/Verification Extensions  \\[1ex]
+           \textbf{Topic:} Building a CTL Model Checker plus Implementing a Choice of Modelling/Verification Extensions  \\[1ex]
           \textbf{Submission deadline:} Friday, 06/13/2022, noon (no second submission)  \\ [0.5ex]
-          \textbf{Contact:} Francesco Pontiggia, francesco.pontiggia@tuwien.ac.at 
+          \textbf{Contact:} Samuel Pilz, samuel.pilz@student.tuwien.ac.at, 
+                            Francesco Pontiggia, francesco.pontiggia@tuwien.ac.at 
 %          (In case of need, this deadline will be extended (details posted via TISS))
 \end{center}
 
@@ -96,14 +97,13 @@
 \newcommand{\code}[1]{\texttt{#1}}
 
 \noindent
-The goal of the project is to implement an automata-based LTL Model Checker, \textit{MiniCheck}. 
+The goal of the project is to implement a Computational Tree Logic (CTL) Model Checker, \textit{MiniCheck}. 
 The project consists of two parts: the core model checker and the elective modular extensions. 
 In turn, the core model checker requires resp.: 
 \begin{itemize}
-    \item a number of preliminary programming tasks (\textbf{Module 0}, cf.~Section \ref{subsec-ts} and \ref{subsec-ltl}).
-    \item an automaton construction module which builds an appropriate automaton from the input LTL formula (\textbf{Module 1}, cf.~Section \ref{subsec-mca} and \ref{subsec-m1}).
-    \item a cycle detection module which verifies the cartesian product of the automaton and a given Transition System
-          (\textbf{Module 2}, cf.~Section \ref{subsec-mca} and \ref{subsec-m2})).
+    \item a number of preliminary programming tasks (\textbf{Module 0}, cf.~Section \ref{subsec-ts} and \ref{subsec-ctl}).
+    \item a verification module which checks the input CTL formula on a Transition System (TS)(\textbf{Module 1}, cf.~Section \ref{subsec-mca} and \ref{subsec-m1}).
+
 \end{itemize}  
 The core is mandatory but is only worth a portion of the points achievable in this project.
 
@@ -122,9 +122,8 @@ The date will be announced via TUWEL news.
 
 \section{Grading}
 
-The preliminary programming tasks with a parser at its core (\textbf{Module 0}), the automaton construction module 
-(\textbf{Module 1)} and
-the cycle detection module (\textbf{Module 2}) of MiniCheck are mandatory. 
+The preliminary programming tasks with a parser at its core (\textbf{Module 0}) and 
+the verification module (\textbf{Module 1}) of MiniCheck are mandatory. 
 Implementing this core awards up to 200 points. The project presentation will be worth up to 100 points. 
 To gain more points on top of the aforementioned, you can choose from some modelling 
 and verification extensions of the MiniCheck tool.
@@ -152,8 +151,6 @@ See, e.g., \cite{BaKa} for details (a PDF version is available on the
 
 Model Checking consists of formally and exhaustively verifying a formula 
 against all the possible executions of a particular type of automata. 
-The automata-based approach we are going to follow has been originally proposed by 
-Vardi and Wolper \cite{VarWol}.
 In the following, we provide some preliminary information 
 about the type the formalisms you are required to support, 
 and then present the project to carry out. 
@@ -197,9 +194,11 @@ Define:
           can be passed as input to your tool, and
     \item a data type to represent them. 
     \item the type of the set of atomic propositions that can be used to label states of the Transition System.
-          \textcolor{red}{[There needs to be some detail on the kind of atomic propositions, I think; 
-          otherwise, I can not imagine how to meaningfully define a type for something completely unknown.]}
-\end{itemize}
+        These are usually either a description of the state (e.g., OFF for a system that describes a lightbuld) 
+        or a property that holds in the state (e.g. $nsoda == 0$ for a system that 
+        describes the functioning of a soda vending machine). We refer to 
+        the example in Section \ref{subsec:example}
+\end{itemize} 
 Implement: 
 \begin{itemize}
     \item A parsing function from the plain-text representation of TS to the data type.
@@ -212,12 +211,15 @@ You are allowed to choose one of the parsing approaches presented in the lecture
 use an external monadic parsing library from Hackage. Document your choice.
 
 We require that a state is always labelled with itself 
-(i.e., $s_i \in L(s_i)$, which implies $S \subset AP$)). This does not mean that the atomic propositions 
-we are considering are only state identifiers \textcolor{red}{[cp.~note above, here needs to be some
-more detail, I think]}).
+(i.e., $s_i \in L(s_i)$, which implies $S \subset AP$). This does not mean that the atomic propositions 
+we are considering are only state identifiers. As introduced earlier, a state may be labelled with different 
+types of properties depending on the context: it will be up to you to define a suitable type to make your 
+program be able to encode and deal with as many different situations as possible.
 
-\subsection{Preliminaries - Linear Temporal Logic}
-\label{subsec-ltl}
+
+
+\subsection{Preliminaries - Computational Tree Logic}
+\label{subsec-ctl}
 To express properties to verify on Transition Systems, we consider a temporal extension of propositional logic, i.e., 
 the introduction of temporal modalities on top of propositional logic. In particular, the temporal
 modalities we consider are $\ocircle$ (pronounced ``next'') and $\luntilbase$ (pronounced ``until'').
@@ -322,7 +324,6 @@ information you find useful.
 In this module, you will have to build a \emph{Generalized Nondeterministic Büchi Automaton}(GNBA) 
 that recognizes all and only the traces that satisfy an LTL formula $\varphi$. The algorithm you have to follow 
 is given in \cite[Section 5.2]{BaKa}. 
-\todo[inline]{this part has been added recently} 
 We will now outline the main definitions and steps involved in the construction.
 
 \subsubsection*{Generalized NBA}
@@ -468,6 +469,9 @@ and verify that the acceptance of the string is as expected.
 
 To test the cycle detection algorithm, a smart way is to implement the bonus Section \ref{sec::bonus1}
 \todo[inline]{What can we do with QuickCheck on the model Checker?}
+
+\subsection{Example} \label{subsec:example}
+\todo[inline]{write me}
 
 \section{MINI Extensions}
 This section describes some extensions to MiniCheck. Each extension is worth the given amount of points. 
