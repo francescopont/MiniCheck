@@ -97,16 +97,18 @@
 \newcommand{\code}[1]{\texttt{#1}}
 
 \noindent
-The goal of the project is to implement a Computational Tree Logic (CTL) Model Checker, \textit{MiniCheck}. 
+The goal of the project is to implement a  Model Checker, \textit{MiniCheck}, 
+for the the so called Computational Tree Logic (CTL). 
 The project consists of two parts: the core model checker and the elective modular extensions. 
 In turn, the core model checker requires resp.: 
 \begin{itemize}
     \item a number of preliminary programming tasks (\textbf{Module 0}, cf.~Section \ref{subsec-ts} and \ref{subsec-ctl}).
-    \item a verification module which checks the input CTL formula on a Transition System (TS)(\textbf{Module 1}, 
-        cf.~Section \ref{subsec-mca} and \ref{subsec-m1}).
+    \item a verification module which checks the input CTL formula on a Transition System (TS)(\textbf{Module 1}, cf.~Section \ref{subsec:mc}).
 
 \end{itemize}  
 The core is mandatory but is only worth a portion of the points achievable in this project.
+
+Section2 \ref{sec:ext1, sec:ext2} present some extensions to MiniCheck. Each extension is worth the given amount of points. Note that none of the described extensions are necessary for a positive grade.
 
 In contrast to previous exercises, you are not asked to implement functions with given signatures. 
 Instead, the functionality of the executed program is evaluated. 
@@ -156,14 +158,13 @@ In the following, we provide some preliminary information
 about the type the formalisms you are required to support, 
 and then present the project to carry out. 
 For a complete and deeper introduction to our approach in model checking, 
-please, refer to \cite{BaKa} (a PDF version is available on the 
-\href{https://github.com/francescopont/MiniCheck.git}{Github repository}).
+please, refer to \cite{BaKa}.
 
 
 \subsection{Preliminaries - Transition Systems}
 \label{subsec-ts}
 As modelling formalism, we use \emph{Transition Systems} (TS). They are a particular variant 
-of \emph{Finite State Automata} which allow to describe adequately both hardware and software systems. 
+of Finite State Automata which allow to describe adequately both hardware and software systems. 
 They are defined over infinite runs, and they do not have a set of final states. 
 Formally, a TS is a tuple ($S, Act, \rightarrow, I, AP, L$), where 
 \begin{itemize}
@@ -174,16 +175,10 @@ Formally, a TS is a tuple ($S, Act, \rightarrow, I, AP, L$), where
     \item $AP$ is a set of \emph{atomic propositions}, and 
     \item $L : S \rightarrow 2^{AP}$ is a \emph{labelling function}.
 \end{itemize}
-Actions are used to specify how the system evolves from one state to another. The labelling function 
-maps every state to the set of atomic propositions holding in that state. The initial state is chosen 
-nondeterministically between all states $\in I$.
-We adopt a \textbf{state-based} approach: we consider (and want to verify) the labels in the state sequence 
-of a run of the TS, and abstract from actions, which are of no use in our verification algorithm. 
+Actions are used to specify how the system evolves from one state to another. The labelling function maps every state to the set of atomic propositions holding in that state. The initial state is chosen nondeterministically between all states $\in I$.
+We adopt a \textbf{state-based} approach: we consider (and want to verify) the labels in the state sequence of a run of the TS, and abstract from actions, which are of no use in our verification algorithm. 
 
-Note that, for simplicity sake, we consider only TS with no terminal states, i.e., every state has at least 
-one outgoing edge. While this prevents some technical problems from occurring, it is not a limit to the 
-expressive power of TS: for every state $s$ without outgoing edge, define a transition to a sink state 
-$s_ {sink}$, and then define a self transition from $s_ {sink}$ to itself.
+Note that, for simplicity sake, we consider only TS with no terminal states, i.e., every state has at least one outgoing edge. While this prevents some technical problems from occurring, it is not a limit to the expressive power of TS: for every state $s$ without outgoing edge, you can get rid of terminal states by defining a transition to a sink state $s_ {sink}$, and then define a self transition from $s_ {sink}$ to itself.
 
 \subsubsection*{Resources}
 \cite[Paragraph 2.1]{BaKa}
@@ -194,64 +189,44 @@ Define:
     \item a suitable plain-text representation of TS such that TS written in this representation
           can be passed as input to your tool, and
     \item a data type to represent them. 
-    \item the type of the set of atomic propositions that can be used to label states of the Transition System.
-        These are usually either a description of the state (e.g., OFF for a system that describes a lightbuld) 
-        or a property that holds in the state (e.g. $nsoda == 0$ for a system that 
-        describes the functioning of a soda vending machine). We refer to 
-        the example in Section \ref{subsec:example}
+    \item the type of the set of atomic propositions that can be used to label states of the           Transition System.These are usually either a description of the state (e.g., OFF for a         system that describes a lightbulb) or a property that holds in the state (e.g. $nsoda == 0$     for a system that describes the functioning of a soda vending machine). We refer to  the       example in Section \ref{subsec:example}
 \end{itemize} 
 Implement: 
 \begin{itemize}
     \item A parsing function from the plain-text representation of TS to the data type.
 \end{itemize}
-Take care of making sure that there are no terminal states, that there is at least an initial state, 
-and that your formalisation of the set of atomic proposition is respected. The parsing function should 
-abort when it encounters a non well formed Transition System.
+Take care of making sure that there are no terminal states, that there is at least an initial state, and that your formalisation of the set of atomic proposition is respected. The parsing function should abort when it encounters a non well-formed Transition System.
 
 You are allowed to choose one of the parsing approaches presented in the lecture or 
 use an external monadic parsing library from Hackage. Document your choice.
 
 We require that a state is always labelled with itself 
-(i.e., $s_i \in L(s_i)$, which implies $S \subset AP$). This does not mean that the atomic propositions 
-we are considering are only state identifiers. As introduced earlier, a state may be labelled with different 
-types of properties depending on the context: it will be up to you to define a suitable type to make your 
-program be able to encode and deal with as many different situations as possible.
-
-
+(i.e., $s_i \in L(s_i)$, which implies $S \subset AP$). This does not mean that the atomic propositions we are considering are only state identifiers. As introduced earlier, a state may be labelled with different types of properties depending on the context: it will be up to you to define a suitable type to make your program be able to encode and deal with as many different situations as possible.
 
 \subsection{Preliminaries - Computational Tree Logic}
 \label{subsec-ctl}
-To express properties to verify on Transition Systems, we consider a temporal extension of propositional logic, i.e., 
-the introduction of temporal modalities on top of propositional logic. In particular, the temporal
-modalities we consider are $\ocircle$ (pronounced ``next'') and $\luntilbase$ (pronounced ``until'').
-These temporal modalities allow to constraint the future states (or, in fact, their labels), that can be visited
-by a path.
+To express properties to verify on Transition Systems, we consider a temporal extension of propositional logic, i.e., the introduction of temporal modalities on top of propositional logic. 
 
-Moreover, CTL (differently with respect to some other logics, e.g. LTL) is based on a \emph{branching} notion 
-of time. With this approach, future time corresponds to an infinite tree of states than can be vsited after the 
-current one. Infact, branching time refers to the fact that at each moment there may be 
-several different possible futures. By fixing a choice of a state at every subtree, 
-we get one of all \emph{possible} futures. 
-Each traversal of the tree starting in its root represent a single path. The tree rooted
-at state $s$ thus represents all possible infinite computations in the transition system that
-start in $s$.
+In particular, the temporal modalities we consider are $\ocircle$ (pronounced ``next'') and $\luntilbase$ (pronounced ``until'').
+These temporal modalities allow to constraint the future states (or, in fact, their labels), that can be visited by a path.
 
-Computation Tree Logic (CTL) thus allows to express properties for \emph{some} or \emph{all} computations 
-that start in a state. For this purpose, it features two operators: an existential path quantifier ($\exists$) 
-and a universal path quantifier ($\forall$). 
+Moreover, CTL (differently with respect to some other logics, e.g. LTL) is based on a \emph{branching} notion of time. With this approach, future time corresponds to an infinite tree of states than can be visited after the current one. Infact, branching time refers to the fact that at each moment there may be several different possible futures. By fixing a choice of a state at every subtree, we get one of all \emph{possible} futures. 
+Each traversal of the tree starting in its root represent a single path. The tree rooted at state $s$ thus represents all possible infinite computations in the transition system that start in $s$.
+
+Computation Tree Logic (CTL) thus allows to express properties for \emph{some} or \emph{all} computations that start in a state. For this purpose, it features two operators: an existential path quantifier ($\exists$) and a universal path quantifier ($\forall$). Intuitively, $\exists \varphi$ holds in a state if there exists \emph{some} path satisfying $\varphi$ that starts in that state. Dually, $\forall \varphi$ holds in a state if \emph{all} states starting in that state satisfy $\varphi$.
 
 The atomic proposition $a \in AP$ stands for the state label $a$ in a TS.
 
 \subsubsection*{CTL Syntax}
 Given a set $AP$ of atomic propositions, with $a \in AP$, CTL formulas follow the following syntax: 
 \begin{align*}
-    &\; \emph{(state) formulas} &\; \Phi ::= \text{true} \mid a \mid \Phi_1 \land \Phi_2 \mid \neg \Phi \mid \exists \varphi \mid \forall \varphi \\
-    &\; \emph{path formulas}    &\; \varphi ::= \lnext{\Phi} \mid \lluntil{\Phi_1}{\Phi_2}
+    & \emph{(state) formulas} & \Phi ::= \text{true} \mid a \mid \Phi_1 \land \Phi_2 \mid \neg \Phi \mid \exists \varphi \mid \forall \varphi \\
+    & \emph{path formulas}    & \varphi ::= \lnext{\Phi} \mid \lluntil{\Phi_1}{\Phi_2}
 \end{align*}
 Greek capital letters denote CTL (state) formulas, whereas lowercase Greek letters denote CTL path formulas. 
 A well defined CTL formula is a CTL state formula.
 
-In addition, we introduce the following \emph{derived} Boolean operators: 
+In addition, we introduce the following \emph{derived} Boolean operators for state formulae: 
 \begin{align*}
     &\; \Phi_1 \lor \Phi_2 \equiv \neg (\neg \Phi_1 \land \Phi_2) \\
     &\; \Phi_1 \rightarrow \Phi_2 \equiv \neg \Phi_1 \lor \Phi_2 \\
@@ -259,13 +234,13 @@ In addition, we introduce the following \emph{derived} Boolean operators:
     &\; \Phi_1 \oplus  \Phi_2 \equiv (\Phi_1 \land \neg \Phi_2) \lor (\Phi_2 \land \neg \Phi_1)\\
 \end{align*}
 
-Likewise, we derive some well-known temporal modalities: 
+Likewise, we derive some well-known temporal modalities for path formulae: 
 \begin{itemize}
     \item $\lleven$ (pronounced ``eventually''), and
     \item $\llglob$ (pronounced``generally/always");
 \end{itemize}
 
-These operators can be derived from the base operators through the followi
+These operators can be derived from the base operators through the following
 \begin{align*}
     &\; \exists \lleven \Phi \equiv \exists(\lluntil{\text{true}}{\Phi}) \\ 
     &\; \forall \lleven \Phi \equiv \forall(\lluntil{\text{true}}{\Phi}) \\ 
@@ -277,27 +252,25 @@ These operators can be derived from the base operators through the followi
 You are required to handle all and only these operators (this excludes the weak until operator, for example).
 
 \subsubsection*{Hint about derived operators}
-If your code translates formulas with derived operators into formulas 
+If your code translates formulas with derived operators into formulae 
 with only base operators through these equivalence rules, you will have implemented support of 
-derived operators for free.
+derived operators for free (even if performances will suffer).
 
 \subsubsection*{CTL Semantics}
-Given atomic proposition $a \in AP$, $TS = (S, Act, \rightarrow, I, AP, L)$, state $s \in S$, CTL state formulas 
-$\Phi, \Psi$, CTL path formula $\varphi$, the semantics of CTL is defined in terms of the following 
-satisfaction relation $\vDash$ for state $s$:
+Given atomic proposition $a \in AP$, $TS = (S, Act, \rightarrow, I, AP, L)$, state $s \in S$, CTL state formulas $\Phi, \Psi$, CTL path formula $\varphi$, the semantics of CTL is defined in terms of the following satisfaction relation $\vDash$ (pronounced ``satisfies") for state $s$. We recall that $s \vDash \Phi$ if and only if $\Phi$ holds in $s$.
 \begin{align*}
-    &\; \sigma \vDash \text{true} \\
-    &\; \sigma \vDash a \text{ iff } a \in L(s) \\ 
-    &\; \sigma \vDash \neg \Phi \text{ iff not } s \vDash \Phi \\
-    &\; \sigma \vDash \Phi \land \Psi \text{ iff } (s \vDash \Phi) \text{ and } (s \vDash \Psi) \\
-    &\; \sigma \vDash \exists \varphi \text{ iff } \pi \vDash \varphi \text{ for some } \pi \in Paths(s) \\ 
-    &\; \sigma \vDash \forall \varphi \text{ iff } \pi \vDash \varphi \text{ for all } \pi \in Paths(s) \\ 
+     & \sigma \vDash \text{true} & \\
+     & \sigma \vDash a &\; \text{ iff } & a \in L(s) \\ 
+     & \sigma \vDash \neg \Phi &\; \text{ iff } & \text{not } s \vDash \Phi \\
+     & \sigma \vDash \Phi \land \Psi & \text{ iff }&  (s \vDash \Phi) \text{ and } (s \vDash \Psi) \\
+     & \sigma \vDash \exists \varphi & \text{ iff } & \pi \vDash \varphi \text{ for some } \pi \in Paths(s) \\ 
+     & \sigma \vDash \forall \varphi & \text{ iff }& \pi \vDash \varphi \text{ for all } \pi \in Paths(s) \\ 
 \end{align*}
 
 Given a path $\pi$, $\vDash$ is defined for path formulas as follows: 
 \begin{align*}
-    &\; \pi \vDash \lnext{\Phi} \text{ iff } \pi[1]  \vDash \Phi \\ 
-    &\; \pi \vDash \lluntil{\Phi}{\Psi} \text{ iff } \exists j \geqslant 0. (\pi[j]  \vDash \Psi \land (\forall 0 \leqslant k < j. \pi[k]  \vDash \Phi))
+    & \pi \vDash \lnext{\Phi} & \text{ iff } \pi[1]  \vDash \Phi \\ 
+    & \pi \vDash \lluntil{\Phi}{\Psi} & \text{ iff } \exists j \geqslant 0. (\pi[j]  \vDash \Psi \land (\forall 0 \leqslant k < j. \pi[k]  \vDash \Phi))
 \end{align*}
 
 A TS satisfies CTL formula $\Phi$ if and only if $\Phi$ holds for all initial states.
@@ -310,133 +283,124 @@ Define:
     \item the type of the set of atomic propositions ($APs$) that can be used in the formulas (the same reasoning for LTL $APs$ applies).
 \end{itemize}
 
+\subsubsection*{Task}
+It is up to you to decide how to combine the two plain text representations of the inputs (the TS and the formula), and how to provide them to the Model Checker via some command-line arguments. Any potential issue with command line arguments must be treated adequately (e.g., missing arguments, too many arguments, wrong arguments, \dots).
+
+The results of a model check query should be printed on the CLI (command line interface), together with some additional information you find useful.
 
 \subsubsection*{Resources}
-\cite[Paragraph 6.2 (in particular 5.1.1 and 5.1.2)]{BaKa}
+\cite[Paragraph 6.2 (in particular 6.1.1 and 6.1.2)]{BaKa}
 
-It is up to you to decide how to combine the two plain text representations of the inputs (the TS and the formula), 
-and how to provide them to the Model Checker via some command-line arguments. Any potential issue with 
-command line arguments must be treated adequately (e.g., missing arguments, too many arguments, wrong arguments, \dots).
-
-The results of a model check query should be printed on the CLI (command line interface), together with some additional 
-information you find useful.
-
-\subsection{Module 1 - Automaton Construction from an LTL formula}
-\label{subsec-m1}
-In this module, you will have to build a \emph{Generalized Nondeterministic Büchi Automaton}(GNBA) 
-that recognizes all and only the traces that satisfy an LTL formula $\varphi$. The algorithm you have to follow 
-is given in \cite[Section 5.2]{BaKa}. 
-We will now outline the main definitions and steps involved in the construction.
-
-\subsubsection*{Generalized NBA}
-A GNBA is a tuple $\mathcal{G} := (Q, \Sigma, \delta, Q_0, \mathcal{F})$ where:
+\subsection*{Module 1 - The Model Checking procedure}
+\label{subsec:mc}
+The model checking procedure for CTL formulas differs completely from automata-based procedures, like in LTL verification. It's essentially a bottom-up traversal of the parse tree of the formula at hand, and it is considered way more efficient and straightforward, since it does not involve any notion of corresponding automaton for the input formula. Instead, given a TS and a CTL formula $\Phi$, to verify whether TS $\vDash \Phi$, we establish whether $\Phi$ is valid in each initial state $s$ of TS directly using $s$ and TD. 
+Therefore, the procedure is roughly composed of two steps: 
 \begin{itemize}
-    \item $Q$ is the (finite) set of states.
-    \item $\Sigma$ is the alphabet (and in our case it will always be the set $2^{AP}$).
-    \item $Q_0 \subseteq Q$ is the set of initial states.
-    \item $\delta : Q \times 2^{Q}$ is the (nondeterministic) transition relation 
-    \item $\mathcal{F}$ is a subset of $2^{Q}$.
+    \item computing the set $Sat(\Phi)$ of all states satisfying $\Phi$ (recursively), and
+    \item checking whether all initial states $s \in I$ belong to $Sat(\Phi)$; 
 \end{itemize}
-The definition of a GNBA is the same as the definition of a nondeterministic Buechi Automaton, apart from $\mathcal{F}$.
-$\mathcal{F}$ is the so called \emph{set of acceptance sets}. The accepted language $\mathcal{L}_{\omega}(\mathcal{G})$
-consists of all $\omega$-words that have at least one infinite run $q_0q_1 \dots$ in $\mathcal{G}$ such that 
-for each acceptance set $F \in \mathcal{F}$ there are infinitely many indices $i$ with $q_i \in F$.
+In other words, TS $\vDash \Phi$ if and only if $I_{TS} \subseteq Sat(\Phi)$.
 
-\subsubsection*{Closure of a LTL formula $\varphi$}
-The \emph{closure} of a LTL formula $\varphi$ is the set $Cl(\varphi)$ which contains all subformulas $\psi$ 
-of $\varphi$ as well as their negations. Formally , $Cl(\varphi)$ is the smallest set such that: 
-\begin{itemize}
-    \item $\varphi \in Cl(\varphi)$,
-    \item $a \in AP, a \in Cl(\varphi)$, for all $a \in AP$,
-    \item if $\psi \in Cl(\varphi)$, and $\psi \neq \neg \theta$, then $\neg \psi \in Cl(\varphi)$ (we identify $\not \not \psi$ with $\psi$),
-    \item if $\neg \psi \in Cl(\varphi)$, then $\psi \in Cl(\varphi)$,
-    \item if $\psi \land \theta \in Cl(\varphi)$, then $\psi, \theta \in Cl(\varphi)$,
-    \item if $\lnext{\psi} \in Cl(\varphi)$, then $\psi \in Cl(\varphi)$,
-    \item if $\lluntil{\psi}{\theta} \in Cl(\varphi)$, then $\psi, \theta \in Cl(\varphi)$.
-\end{itemize}
+\subsubsection{Remark about the notation}
+In the following, we present a procedure which computes the satisfaction sets for formulae of 
+CTL expressed in the so called \emph{existential normal form}(ENF). This form is the smallest subset of CTL formulae that preserves the same expressive power of full CTL. In other words, for each CTL formula, there exists an equivalent CTL formula expressed in ENF. The set of formulae in ENF is given by: 
+\begin{align*}
+    & \Phi ::= \text{true} \mid a \mid \Phi_1 \land \Phi_2 \mid \neg \Phi \mid \exists \lnext \varphi \mid \exists (\lluntil{\Phi_1}{\Phi_2} \mid \exists \llglob \Phi \\
+\end{align*}
+We see that the $\forall$ operator is not present in CTL formulae in ENF.
+Again, you can either define by yourself the satisfaction set for all CTL formulae, or you can sacrify performances and translate the remaining formulae in EFN (which is the easier way).
+The translation rules can be found in \cite[Paragraph 6.2.4]{BaKa}:
+\begin{align*}
+    & \forall \lnext \Phi & \equiv & \text{ } \neg \exists \lnext \neg \Phi \\
+    & \forall \big( \lluntil{\Phi}{\Psi} \big) & \text{ } \equiv & \neg \exists \big( \lluntil{\neg \Psi}{(\neg \Phi \land \neg \Psi)} \big) \land \neg \exists \llglob \neg \Psi \\
+\end{align*}
+For derived temporal operators, one can use:
+\begin{align*}
+    & \exists \lleven \Phi & \equiv & \text{ } \exists \big(\lluntil{\text{true}}{\Phi}\big) \\
+    & \forall \lleven \Phi & \equiv  & \text{ }\neg \exists \llglob \neg \Phi \\ 
+    & \forall \llglob \Phi & \equiv & \text{ } \neg \exists \lleven \neg \Phi \equiv \neg \exists \big(\lluntil{\text{true}}{\neg \Phi} \big) \\
+\end{align*}
 
-\subsubsection*{Elementary set of formulas}
-A set $B \subseteq Cl(\varphi)$ is called elementary if:
-\begin{enumerate}
-    \item it is \emph{consistent} with respect to propositional logic, i.e., for all 
-            $\varphi_1 \land \varphi_2, \psi \in Cl(\varphi)$:
-            \begin{itemize}
-                \item $\varphi_1 \land \varphi_2 \in B$ if and only if $\varphi_1 \in B$ and $\varphi_2 \in B$.
-                \item $\psi \in B$ implies $\neg \psi \notin B$ 
-                \item true $\in Cl(\varphi)$ implies true $\in Cl(\varphi)$.
-            \end{itemize}
-    \item it is \emph{locally consistent} with respect to the until operator, i.e., for all 
-            $\lluntil{\varphi_1}{\varphi_2} \in Cl(\varphi)$:
-            \begin{itemize}
-                \item $\varphi_2 \in B$ implies $\lluntil{\varphi_1}{\varphi_2} \in B$
-                \item $\lluntil{\varphi_1}{\varphi_2} \in B$ and $\varphi_2 \notin B$ implies $\varphi_1 \in B$.
-            \end{itemize}
-    \item it is \emph{maximal} i.e., for all $\psi \in Cl(\varphi)$:
-            \begin{itemize}
-                \item $\psi \notin B$ implies $\neg \psi \in B$.
-            \end{itemize}
-\end{enumerate}
+\subsubsection{The algorithm}
+The following algorithm sketches the procedure. 
+\label{subsec-CTLmca}
+\begin{algorithm}[H]
+    \caption{CTL Model Checking}
+    \label{alg:CTLmc}
+    \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS and CTL formula $\Phi$ (both over $AP$) \\
+    \hspace*{\algorithmicindent} \emph{Output}: ``yes'' if $TS \vDash \Phi$; otherwise, ``no''
+    \begin{algorithmic}[1]
+    \Function{$SatFun$}{$\phi$}
+        \If{$\phi$ contains state subformulas}
+            \State // for children nodes $\psi_1, \psi_2$ of the parse tree of $\phi$, the so called \emph{maximal proper subformulas}
+            \State $Sat(\psi_1) = SatFun(\psi_1)$; $Sat(\psi_2) = SatFun(\psi_2)$ 
+            \State combine $Sat(\psi_1), Sat(\psi_2)$ depending on the operator of $\phi$ ($\land, \exists\lnext, \exists\mathbin{\mathcal{U}}, \exists\llglob$).
+        \Else
+            \State compute directly the set $Sat(\phi)$.
+        \EndIf
+        \State return $Sat(\phi)$.
+    \EndFunction
+    \State return $I \subseteq Sat(\Phi)$.
+    \end{algorithmic}
+\end{algorithm}
 
-\subsubsection*{GNBA for LTL}
-Given a LTL formula $\varphi$ over AP, we define as follows the GNBA $\mathcal{G}_{\varphi}$ which recognizes all
-and only the strings over the alphabet $2^{AP}$ that satisfy $\varphi$.
+\subsubsection*{Characterization of $Sat(\cdot)$ for CTL formulae in ENF}
+We now formally define the set $Sat(\cdot)$ for every formula, possibly depending on the satisfaction set of subformulae. Let TS $ = (S, Act, \rightarrow, I, AP, L)$ be a transition system without terminal states. For all CTL formulae $\Phi$, $\Psi$ over $AP$ it holds:
+\begin{align*}
+    & Sat(\text{true}) := S \\
+    & Sat(a) := \{ s \in S \mid a \in L(s) \}, for any a \in AP \\ 
+    & Sat( \Phi \land \Psi) := Sat(\Phi) \cap Sat(\Psi) \\ 
+    & Sat(\neg \Phi) := S \setminus Sat(\Phi) \\ 
+    & Sat(\exists \llnext \Phi) := \{ s \in S \mid Post(s) \cap Sat(\Phi) \neq \varnothing \\
+    & Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big) \text{ is the smallest subset T of S such that }: \\
+    & \text{   (1)   }(1) Sat(\Psi) \subseteq T \text{ and (2) } s \in Sat(\Phi) \text{ and } Post(s) \cap T \neq \varnothing \text{ implies } s \in T \\
+    & Sat(\exists \llglob \Phi) \text{is the largest subset T of S, such that }\\
+    &\text{   (3)   } T \subseteq Sat(\Phi) \text{ and } (4) s \in T \text{ implies } Post(s) \cap T \neq \varnothing \\
+\end{align*}
+where
+\begin{align*}
+    Post(s) := \bigcup_{\alpha \in Act} \{ s^{'} \in S \mid s \xrightarrow{\alpha} s^{'} \}
+\end{align*}
+is just the set of successors of a state.
 
-$\mathcal{G}_{\varphi} := (Q, 2^{AP}, \delta, Q_0, \mathcal{F})$ such that: 
-\begin{itemize}
-    \item $Q \subseteq 2^{Cl(\varphi)}$ is the set of all the elementary sets of formulae $B \subseteq Cl(\varphi)$,
-    \item $Q_0 = \{ B \in Q \mid \varphi \in B\}$,
-    \item $\mathcal{F} = \{ F_{\lluntil{\varphi_1}{\varphi_2}} \mid \lluntil{\varphi_1}{\varphi_2} \in Cl(\varphi) \} $, where 
-            \begin{itemize}
-                \item $F_{\lluntil{\varphi_1}{\varphi_2}} = \{ B \in Q \mid \lluntil{\varphi_1}{\varphi_2} \notin B$ or $\varphi_2 \in B \}$.
-            \end{itemize}
-\end{itemize}
+\subsubsection{How to computer $Sat(\cdot)$}
+For most cases, you can just stick to the definition. There are only two critical situations.
+To compute $Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big)$ and $Sat(\exists \llglob \Phi)$, an iterative approach is required to compute respectively the smallest subset and the greatest subset that verify the property. The two algorithms are sketched here.
 
-The transition  relation $\delta : Q \times 2^{AP} \rightarrow 2^Q$ is defined as follows;
-(given an elementary set $B$, i.e., a state of the automaton, and a set of $AP$ A):
-\begin{itemize}
-    \item if $A \neq B \cap AP$, then $\delta(B,A) = \varnothing$,
-    \item if $A = B \cap AP$, then $\delta(B,A)$ is the set of all elementary sets of formulas $B^{'}$ such that 
-            \begin{enumerate}
-                \item for all $\lnext{\psi} \in Cl(\varphi)$, $\lnext{\psi} \in B$ if and only if $\psi \in B^{'}$,
-                \item for all $\lluntil{\varphi_1}{\varphi_2} \in Cl(\varphi)$, 
-                
-                
-                    \begin{center}
-                        $\lluntil{\varphi_1}{\varphi_2} \in B$ if and only if $(\varphi_2 \in B \lor (\varphi_1 \in B \land \lluntil{\varphi_1}{\varphi_2} \in B^{'}))$
-                    \end{center}
-            \end{enumerate}
-\end{itemize}
+\begin{algorithm}[H]
+    \caption{Computation of the satisfaction set for Until formulae}
+    \label{alg:CTLmc}
+    \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS with state set S and CTL formula $\Phi_1 := \exists (\lluntil{\Phi}{\Psi})$(both over $AP$) \\
+    \hspace*{\algorithmicindent} \emph{Output}: $Sat(\Phi_1) = \{ s \in S \mid s \vDash \Phi_1 \}$
+    \begin{algorithmic}[1]
+        \State T := $Sat(\Psi)$; (* compute the smallest fixpoint *)
+        \While { $\{ s \in Sat(\Phi) \setminus T \mid Post(s) \cap T \neq \varnothing \} \neq \varnothing $}
+            \State $ T := T \cup \{ s \in Sat(\Phi) \setminus T \mid Post(s) \cap T \neq \varnothing \} $;
+        \EndWhile
+    \State return T;
+    \end{algorithmic}
+\end{algorithm}
+\subsubsection{Resources}
+\cite[Paragraph 6.4]{BaKa}
 
+\begin{algorithm}[H]
+    \caption{Computation of the satisfaction set for Existential Always formulae}
+    \label{alg:CTLmc}
+    \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS with state set S and CTL formula $\Phi_1 := \exists (\llglob \Phi)$(both over $AP$) \\
+    \hspace*{\algorithmicindent} \emph{Output}: $Sat(\Phi_1) = \{ s \in S \mid s \vDash \Phi_1  \}$
+    \begin{algorithmic}[1]
+        \State T := $Sat(\Phi)$; (* compute the greatest fixpoint *)
+        \While { $\{ s \in T \mid Post(s) \cap T = \varnothing \} \neq \varnothing$ }
+            \State $ T := T \cup \{ s \in T \mid Post(s) \cap T = \varnothing \} $;
+        \EndWhile
+    \State return T;
+    \end{algorithmic}
+\end{algorithm}
+\subsubsection{Resources}
+\cite[Paragraph 6.4]{BaKa}
 
-\subsubsection*{Note 1}
-Recall that, in order to prove that the input formula $\varphi$ holds for all initial paths of a TS, we have 
-to verify the TS against the automaton for the \textbf{negation} of the input formula, i.e., an automaton-representation 
-for the negated formula $\neg \varphi$.
-
-
-\subsection{Module 2 - Fair-cycle Detection of the product transition System}
-\label{subsec-m2}
-\subsubsection*{Generating the product Transition System}
-This task consists of implementing the generation of the product transition system $TS \oplus \mathcal{A}$
-starting from the input TS and the (generalized) NBA $\mathcal{A}$ built from the input formula in module 1.
-For this purpose, we refer you to the product construction of \cite[Section 4.4.1]{BaKa}.
-
-\subsubsection*{Detecting Fair cycles}
-This task consists of implementing an exploration algorithm for the transition relation of the product 
-automaton. The goal is to find a so called \emph{fair} cycle, i.e., a cycle which satifies the acceptance 
-condition of the underlying NBA. The existance of such cycle, and the reachability of such cycle from an 
-initial state, allows us to conclude that there exist an infinite path of the TS which does not satisfy the input 
-formula $\varphi$. Two algorithms for this purpose are presented in \cite[Section 4.4.2]{BaKa}.
-
-\subsubsection*{Note}
-You have to choose an approach to handle the global variables of the fair-cycle detection algorithm. 
-There are two main approaches available (but you may come up with a new one):
-\begin{itemize}
-    \item continuation: the exploration function calls itself recursively with its updated global variables 
-            and a new state to be explored 
-    \item monadic: use the state monad presented in the lecture or the state monad 
-            as defined in the \href{https://hackage.haskell.org/package/transformers}{\texttt{transformers}} library.
-\end{itemize}
+\subsubsection*{Task}
+Implement the model checking algorithm presented here.
 
 \subsection{Test Suite}
 Projects of this size profit from an automatic test-suite. 
@@ -451,168 +415,132 @@ Write a test-suite for the major components of the project using one of the foll
 
 As before, it is encouraged to utilise external libraries for writing tests.
 
-It is required to write at least three unit tests per major component, where major components are:
-
-\begin{itemize}
-\item MiniCheck automaton construction
-\item MiniCheck cycle detection
-\end{itemize}
-
-To test the automaton costruction function, a recommended way is to run some strings on the automaton, 
-and verify that the acceptance of the string is as expected.
-
-To test the cycle detection algorithm, a smart way is to implement the bonus Section \ref{sec::bonus1}
-\todo[inline]{What can we do with QuickCheck on the model Checker?}
+It is required to write at least three unit tests for Module 1, and a test unit for Module 1.
 
 \subsection{Example} \label{subsec:example}
 \todo[inline]{write me}
 
-\section{MINI Extensions}
-This section describes some extensions to MiniCheck. Each extension is worth the given amount of points. 
-Note that none of the described extensions are necessary for a positive grade.
-
-\subsection{Parsing MINI Programs (100 P)}
+\section{Extension 1 - Parsing MINI Programs (100 P)}
+\label{sec:ext1}
 With this extension, you are required to extend the modelling power of MiniCheck targeting 
 software verication. While TS are good for expressing hardware models, they may be too low-level 
-to model software programs. To help the user of your version of MiniCheck, you will implement an 
-automated translation procedure for MINI programs into TS.
+to model software programs. To help the user of your version of MiniCheck, we will implement an 
+automated translation procedure for MINI programs into TS. MINI is the programming language of the other assignment of this course. In the following, we detail \textbf{our version of MINI}, which is even smaller that the original one, and then present how to translate a MINI program into an equivalent Transition System.
 
-\todo[inline]{write me}
+\subsection{Informal Description}
+\todo[inline]{review me}
+This section informally describes the core of the MINI programming language, only covering the language core.
 
-\todo[inline]{Shall we include also While loops?}
+MINI is a procedural programming language. The syntax and semantics of MINI are inspired by the \href{https://en.wikipedia.org/wiki/C_(programming_language)}{programming language C}.
+
+All code is contained in a single procedure \code{main} and variables are of the same type, namely the arbitrarily sized integer (Haskell type \code{Integer}). This means that the type of the variables is not explicitly specified in MINI. Variables are not required to be declared before definition.
+
+The procedure \code{main} implements a pure function, input/output functionality is not included in the core of MINI. Procedure \code{main} takes a defined set of named variables and returns a result. The last statement of the procedure must be a \code{return} statement and no other \code{return} statement can occur in the procedure. In contrast to common programming languages, \code{return} statements in MINI are syntactically restricted to return the value of a single variable instead of a general expression.
+
+The \code{while} and \code{if} statements are defined as in C: the \code{while} statement implements a loop that executes the given block in a loop as long the test-expression evaluates to true. The \code{if} statement executes either the first or optionally the second block.
+
+It is not necessary to declare variables before usage, however, it is necessary to define their value before usage, i.e. a variable must be initialised before it can be used in arithmetic and boolean expressions.
+Variables declared in the argument list are initialised with the values the procedure has been invoked with.
 
 \subsubsection*{A Note about terminal states}
 \todo[inline]{write me}
 
+\section{Extension 2 - Bounded LTL model checking (100 P)}
+\label{sec:ext2}
+With this extension, you are required to extend the verification power of MiniCheck targeting a different class of properties, namely, those expressed through the so called \emph{Linear Temporal Logic}. LTL embraces a \emph{linear} view of the time, which means that at each moment of time there is only one possible successor state and thus each moment has a unique possible future. This follows from the fact that LTL is path-based, i.e. LTL formula are interpreted only in terms of sequences of states. The interpretation of a LTL formula $\varphi$ over a state $s$ requires that $\varphi$ is satisfied by all possible computations (paths) that start in $s$.
 
+The full LTL algorithm requires some more involved formalisms, hence we will not deal with it. Instead, we will implement a \textbf{bounded} model checking algorithm. To do so, we enumerate all possible paths that start from initial states with size up to a certain size $k$ (where the bound $k$ is provided by the user), and verify only these paths against the input formula. This means that the overall procedure is not complete, i.e. we are not formally guaranteeing that the formula holds for the TS at hand. However, this approach has some advantages: it is simple to apply and it is much more scalable. 
 
-\subsection{CTL model checking (100 P)}
-With this extension, you are required to extend the verification power of MiniCheck targeting a new class 
-of properties, those based on a \emph{branching} notion of time. Indeed, while in LTL a property for a state 
-always range over all possible paths starting from that state, in some situations we would like to reason only
-about some of such paths. With this approach, the notion of time corresponds to that of an infinite tree of states, 
-instead of an infinite sequence. Infact, branching time refers to the fact that at each moment there may be 
-several different possible futures. By fixing a choice of a state at every subtree, we get one of all \emph{possible}
-futures. Each traversal of the tree starting in its root represent a single path. The tree rooted
-at state $s$ thus represents all possible infinite computations in the transition system that
-start in $s$.
+As modelling formalism, we will use the same as the core modules, i.e. Transition Systems without terminal states, and where Actions are irrelevant.
 
-Computation Tree Logic (CTL) thus allows to express properties for \emph{some} or \emph{all} computations 
-that start in a state. For this purpose, it features two operators: an existential path quantifier ($\exists$) 
-and a universal path quantifier ($\forall$). 
+In the following, we will provide some information about LTL, and then present the tasks to be implemented with this extension.
 
-As modelling formalism, you are required to use the same as in the core modules.
-
-\subsubsection*{CTL Syntax}
-As  in LTL, at the bottom of CTL there are atomic propositions $AP$ which represent the labels for the states in a TS.
+\subsection*{Syntax}
+Given a set $AP$ of atomic propositions, with $a \in AP$, LTL formulas follow the following syntax: 
 \begin{align*}
-    &\; \emph{(state) formulas} &\; \Phi ::= \text{true} \mid a \mid \Phi_1 \land \Phi_2 \mid \neg \Phi \mid \exists \varphi \mid \forall \varphi \\
-    &\; \emph{path formulas}    &\; \Phi ::= \lnext{\Phi} \mid \lluntil{\Phi_1}{\Phi_2}
+    &\; \varphi ::= \text{true} \mid a \mid \varphi_1 \land \varphi_2 \mid \neg \varphi \mid \lnext{\varphi} \mid \lluntil{\varphi_1}{\varphi_2}
 \end{align*}
-Greek capital letters denote CTL (state) formulas, whereas lowercase Greek letters denote CTL path formulas. 
-A well defined CTL formula is a CTL state formula.
-
-As in LTL, you are required to implement also the derived Boolean operators and the temporal modalities ``Eventually'' and ``Always''.
-\todo[inline]{add the translation of this formulas}
-
-\subsubsection*{CTL Semantics}
-Given atomic proposition $a \in AP$, $TS = (S, Act, \rightarrow, I, AP, L)$, state $s \in S$, CTL state formulas 
-$\Phi, \Psi$, CTL path formula $\varphi$, the semantics of CTL is defined in terms of the following 
-satisfaction relation $\vDash$ for state $s$ (compare it with the LTL satisfaction relation, which was defined over a trace $\sigma$):
+In addition, we introduce again the following \emph{derived} Boolean operators: 
 \begin{align*}
-    &\; \sigma \vDash \text{true} \\
-    &\; \sigma \vDash a \text{ iff } a \in L(s) \\ 
-    &\; \sigma \vDash \neg \Phi \text{ iff not } s \vDash \Phi \\
-    &\; \sigma \vDash \Phi \land \Psi \text{ iff } (s \vDash \Phi) \text{ and } (s \vDash \Psi) \\
-    &\; \sigma \vDash \exists \varphi \text{ iff } \pi \vDash \varphi \text{ for some } \pi \in Paths(s) \\ 
-    &\; \sigma \vDash \forall \varphi \text{ iff } \pi \vDash \varphi \text{ for all } \pi \in Paths(s) \\ 
+    &\; \varphi_1 \lor \varphi_2 \equiv \neg (\neg \varphi_1 \land \varphi_2) \\
+    &\; \varphi_1 \rightarrow \varphi_2 \equiv \neg \varphi_1 \lor \varphi_2 \\
+    &\; \varphi_1 \leftrightarrow  \varphi_2 \equiv (\varphi_1 \rightarrow \varphi_2) \land (\varphi_2 \rightarrow \varphi_1) \\
+    &\; \varphi_1 \oplus  \varphi_2 \equiv (\varphi_1 \land \neg \varphi_2) \lor (\varphi_2 \land \neg \varphi_1)\\
 \end{align*}
-
-Given a path $\pi$, $\vDash$ is defined for path formulas as follows: 
+Likewise, we re-derive some well-known temporal modalities (pronounced ``eventually'' and ``generally/always", respectively):
 \begin{align*}
-    &\; \pi \vDash \lnext{\Phi} \text{ iff } \pi[1]  \vDash \Phi \\ 
-    &\; \pi \vDash \lluntil{\Phi}{\Psi} \text{ iff } \exists j \geqslant 0. (\pi[j]  \vDash \Psi \land (\forall 0 \leqslant k < j. \pi[k]  \vDash \Phi))
+    &\; \lleven \varphi \equiv \lluntil{\text{true}}{\varphi} \\
+    &\; \llglob \varphi \equiv \neg \lleven \neg \varphi \\
+\end{align*}
+You are required to handle all and only these operators.
+
+\subsection*{Semantics}
+We define the semantics of LTL formulas over a trace of a Transition System ($S, Act, \rightarrow, I, AP, L$). 
+Given an infinite sequence of states $s_0s_1s_2 \dots$ (i.e.~a path) of the TS, 
+its trace is just the induced infinite sequence of atomic propositions $ \sigma = L(s_0)L(s_1) \dots \in (2^{AP})^{\omega}$.
+Let $\sigma = A_0A_1A_2 \dots$ be an infinite word over $2^{AP}$. Then $\vDash$ is defined by:
+\begin{align*}
+    &\; \sigma \vDash \text{ true} \\
+    &\; \sigma \vDash a \text{ iff } a \in A_0 \\
+    &\; \sigma \vDash \varphi_1 \land \varphi_2 \text{ iff } \sigma \vDash \varphi_1 \text{ and } \sigma \vDash \varphi_2 \\
+    &\; \sigma \vDash \neg \varphi \text{ iff } \sigma \nvDash \varphi \\
+    &\; \sigma \vDash \lnext{\varphi} \text{ iff } \sigma [A_1 \dots] \dots \vDash \varphi \\
+    &\; \sigma \vDash \lluntil{\varphi_1}{\varphi_2} \text{ iff } \exists j \geqslant 0 .  \sigma [ j \dots ] \vDash \varphi_2 \text{ and } \sigma [ i \dots ] \vDash \varPhi_1 \text{, for all } 0 \leqslant  i < j
+\end{align*}
+An LTL formula $\varphi$ holds in a path $\pi$ if it holds for $trace(\pi)$. 
+IT holds for a state $s$ if it holds for all paths starting in $s$.
+It holds for a TS if and only if it holds for all the infinite paths 
+starting in an initial state of the TS, or, in other words, if it holds for all initial states.
+
+\subsection*{Semantics over non maximal paths}
+While the semantics of LTL is defined over infinite paths, with our approach we deal with \textbf{finite} paths. Since the TS has no terminal state, these also have the property to be \textbf{non maximal}, i.e. they can always be prolonged, since every state has at least one successor. This raises an issue with the semantics of the $\lluntil{}{}$ operator we have defined, since it's an unbounded operator. With the current semantics, we may not be able to establish if a finite path $\sigma$ of size $k$ satisfies $\lluntil{\varphi_1}{\varphi_2}$, since the index $j$ such that $\sigma [ j \dots ] \vDash \varphi_2$ may be greater that the bound $k$. Therefore, we have to restrict the semantics of our LTL formulae to force the satisfaction of $\varphi_2$ whithin at most $k$ steps. This leads us to:
+\begin{align*}
+    &\; \sigma \vDash_k \lluntil{\varphi_1}{\varphi_2} \text{ iff } \exists j. 0 \leqslant j < k \text{ and }  \sigma [ j \dots (k-1)] \vDash_k \varphi_2 \text{ and } \sigma [ i \dots (k-1)] \vDash_k \varPhi_1 \text{, for all } 0 \leqslant  i < j
 \end{align*}
 
-A TS satisfies CTL formula $\Phi$ if and only if $\Phi$ holds for all initial states.
+Likewise, we update the semantics of the other operators for coherence.
+\begin{align*}
+    &\; \sigma \vDash_k \text{ true} \\
+    &\; \sigma \vDash_k a \text{ iff } a \in A_0 \\
+    &\; \sigma \vDash_k \varphi_1 \land \varphi_2 \text{ iff } \sigma \vDash_k \varphi_1 \text{ and } \sigma \vDash \varphi_2 \\
+    &\; \sigma \vDash_k \neg \varphi \text{ iff } \sigma \nvDash_k \varphi \\
+    &\; \sigma \vDash_k \lnext{\varphi} \text{ iff } \sigma [1 \dots (k-1)] = A_1 \dots A_{k-1} \vDash_k \varphi \\
+\end{align*}
 
-\subsubsection*{Task}
+\subsection*{Task 0 - Parsing LTL}
 Define:
 \begin{itemize}
-    \item a suitable plain-text representation of CTL formulas such that formulas written in this representation can be passed as input to your tool, and 
-    \item a data type to represent them.
-    \item the type of the set of atomic propositions ($APs$) that can be used in the formulas (the same reasoning for LTL $APs$ applies).
+    \item a suitable plain-text representation of LTL formulae such that formulae written in this representation can be passed as input to your tool, and
+    \item a data type to represent them. 
+    \item the type of the set of atomic propositions that can be used in the formulae.
 \end{itemize}
-
-
-\subsubsection*{Model Checking procedure}
-The model checking procedure for CTL formulas differs completely from LTL verification. 
-It's essentially based on a bottom-up traversal of the parse tree of the formula at hand, 
-and it is considered way more efficient and straightforward, since it does not involve any notion of 
-corresponding automaton for the input formula. Instead, given a TS and a CTL formula $\Phi$, to verify 
-whether TS $\vDash \Phi$, we establish whether $\Phi$ is valid in each initial state $s$ of TS. 
-Therefore, the procedure is roughly composed of two steps: 
+Implement: 
 \begin{itemize}
-    \item computing the set $Sat(\Phi)$ of all states satisfying $\Phi$ (recursively), and
-    \item checking whether all initial states $s \in I$ belong to $Sat(\Phi)$; 
+    \item A parsing function from the plain-text representation to the data type.
 \end{itemize}
-In other words, TS $\vDash \Phi$ if and only if $I \subseteq Sat(\Phi)$.
 
+You are allowed to choose one of the parsing approaches presented in the lecture or 
+use an external monadic parsing library from Hackage. Document your choice.
 
-The following algorithm sketches the procedure. 
-\label{subsec-CTLmca}
+\subsection*{Task 1 - Bounded LTL Model Checking}
+We now outline the algorithm to be implemented. With a naive description, it is divided into three steps. Given a path $\pi := s_0 \dots s_k$, we define its corresponding trace $\sigma := L(s_0) \dots L(s_k)$ as $\sigma(\pi)$
 \begin{algorithm}[H]
-    \caption{CTL Model Checking}
+    \caption{\textbf{k}-bounded  Model Checking}
     \label{alg:CTLmc}
-    \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS and CTL formula $\Phi$ (both over $AP$) \\
-    \hspace*{\algorithmicindent} \emph{Output}: ``yes'' if $TS \vDash \Phi$; otherwise, ``no''
+    \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS with initial states $I$, LTL formula $\varphi$ (both over $AP$), and bound $k$ \\
+    \hspace*{\algorithmicindent} \emph{Output}: ``yes'' if $TS \vDash_k \Phi$; otherwise, ``no''
     \begin{algorithmic}[1]
-    \Function{$SatFun$}{$\phi$}
-        \If{$\phi$ contains state subformulas}
-            \State $Sat(\psi_1) = SatFun(\psi_1)$ 
-            \State $Sat(\psi_2) = SatFun(\psi_2)$ 
-            for children nodes $\psi_1, \psi_2$ of the parse tree of $\phi$, the so called \emph{maximal proper subformulas}
-            \State combine $Sat(\psi_1), Sat(\psi_2)$ depending on the operator of $\phi$ ($\land, \exists\lnext, \exists\mathbin{\mathcal{U}}, \exists\llglob$).
-        \Else
-            \State compute directly the set $Sat(\phi)$.
-        \EndIf
-        \State return $Sat(\phi)$.
-    \EndFunction
-    \State return $I \subseteq Sat(\Phi)$.
+    \State $\Pi := \{ \pi := s_0 \dots s_{k-1} \mid s_0 \in I \text{ and } \varpi \text{ is a valid path in TS} \}  $;
+    \State $\Sigma := \{ \sigma(\pi) \mid  \pi \in \Pi$;
+    \If{ $\forall \sigma \in \Sigma \big( \sigma \vDash_{k} \varphi \big)$ }
+        \State return ``yes''
+    \Else 
+        \State return ``no''
     \end{algorithmic}
 \end{algorithm}
 
-\subsubsection*{Definition of $SatFun$}
-
-
-\subsubsection*{Task}
-
-
-\section{Bonus Task: Related LTL problems (10P)} \label{sec::bonus1}
-
-\subsection{Satisfiability Checking}
-On the \code{--sat} flag, the Model Checker constructs the FSA starting from the input formula
-and perform the fair-cycle detection module on \textbf{this automaton only}. 
-This procedure amounts at verifying whether the formula is satisfiable by any string. 
-
-\subsection{Validity Checking}
-On the \code{--val} flag, the Model Checker constructs the FSA starting from \textbf{negation of} 
-the input formula and perform the fair-cycle detection module on \textbf{this automaton only}. 
-Then, it must return the negation of the result.
-This procedure amounts at verifying whether the formula is valid, i.e., it is satisfied by any string. 
-
-\subsubsection*{Note}
-It is up to you to decide whether changing the format of the input file(s)
-(e.g., by forbidding to include the Transition System in the file) 
-that can go in hand with the \code{--sat} and \code{--val} flags.
-
-\subsubsection*{Resources}
-\cite[Paragraph 5.2.2]{BaKa}
-
-\section{Bonus Task - Returning a Counterexample for LTL properties (10 P)} \label{sec::bonus2}
-On the \code{--ce} flag, the Model Checker returns a Counterexample (CE) if the formula is 
-not satisfied. A CE is a sequence of states of the TS of the form $s_0s_1 \dots (s_n \dots s_m )^{\omega}$
-such that $L(s_0)L(s_1) \dots (L(s_n) \dots L(s_m) )^{\omega}$ does not satisfy the input property $\varphi$.
+\subsection*{Resources}
+\cite[Paragraph 5.1 (in particular 5.1.1 and 5.1.2)]{BaKa}
 
 \section{Bonus Task: Project Management (25P)}
 
@@ -625,9 +553,7 @@ find the coverage of your test-suite and learn more about basic profiling with G
 
 \subsection{Command-Line Interface}
 
-The program so far only has very rudimentary argument parsing, allowing a single filepath.
-However, anyone who did not write this program has no idea about how to invoke the Model Checker correctly,
-thus, we want to have a proper command-line interface
+The program so far only has very rudimentary argument parsing, allowing a single or two filepath(s). However, anyone who did not write this program has no idea about how to invoke the Model Checker correctly, thus, we want to have a proper command-line interface
 
 \subsubsection*{Implementation Suggestions}
 
@@ -641,7 +567,7 @@ The program should be able to understand the following flags:
 
 \begin{itemize}
 \item On \code{-h}/\code{--help}, a help message should be displayed, explaining how the program can be invoked correctly.
-\item On \code{--ts}, the input transition system
+\item On \code{--ts}, the input transition system should be parsed for correctness of the syntax of the input file, but no formula is verified on it.
 \item On \code{--extensions}, a list of supported MINI extensions is printed.
 \item Other flags as you see appropriate. (optional. not graded)
 \end{itemize}
