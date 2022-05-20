@@ -88,12 +88,6 @@
 \noindent
 \noindent
 
-%\title{Programming Project ``MINI''}
-
-
-%\maketitle
-
-
 \newcommand{\code}[1]{\texttt{#1}}
 
 \noindent
@@ -108,7 +102,7 @@ In turn, the core model checker requires resp.:
 \end{itemize}  
 The core is mandatory but is only worth a portion of the points achievable in this project.
 
-Section2 \ref{sec:ext1, sec:ext2} present some extensions to MiniCheck. Each extension is worth the given amount of points. Note that none of the described extensions are necessary for a positive grade.
+Sections  \ref{sec:ext1} and \ref{sec:ext2} present some extensions to MiniCheck. Each extension is worth the given amount of points. Note that none of the described extensions are necessary for a positive grade.
 
 In contrast to previous exercises, you are not asked to implement functions with given signatures. 
 Instead, the functionality of the executed program is evaluated. 
@@ -305,13 +299,13 @@ In other words, TS $\vDash \Phi$ if and only if $I_{TS} \subseteq Sat(\Phi)$.
 In the following, we present a procedure which computes the satisfaction sets for formulae of 
 CTL expressed in the so called \emph{existential normal form}(ENF). This form is the smallest subset of CTL formulae that preserves the same expressive power of full CTL. In other words, for each CTL formula, there exists an equivalent CTL formula expressed in ENF. The set of formulae in ENF is given by: 
 \begin{align*}
-    & \Phi ::= \text{true} \mid a \mid \Phi_1 \land \Phi_2 \mid \neg \Phi \mid \exists \lnext \varphi \mid \exists (\lluntil{\Phi_1}{\Phi_2} \mid \exists \llglob \Phi \\
+    & \Phi ::= \text{true} \mid a \mid \Phi_1 \land \Phi_2 \mid \neg \Phi \mid \exists \lnext{\varphi} \mid \exists (\lluntil{\Phi_1}{\Phi_2} \mid \exists \llglob \Phi \\
 \end{align*}
 We see that the $\forall$ operator is not present in CTL formulae in ENF.
 Again, you can either define by yourself the satisfaction set for all CTL formulae, or you can sacrify performances and translate the remaining formulae in EFN (which is the easier way).
 The translation rules can be found in \cite[Paragraph 6.2.4]{BaKa}:
 \begin{align*}
-    & \forall \lnext \Phi & \equiv & \text{ } \neg \exists \lnext \neg \Phi \\
+    & \forall \lnext{\Phi} & \equiv & \text{ } \neg \exists \lnext{\neg \Phi} \\
     & \forall \big( \lluntil{\Phi}{\Psi} \big) & \text{ } \equiv & \neg \exists \big( \lluntil{\neg \Psi}{(\neg \Phi \land \neg \Psi)} \big) \land \neg \exists \llglob \neg \Psi \\
 \end{align*}
 For derived temporal operators, one can use:
@@ -326,7 +320,6 @@ The following algorithm sketches the procedure.
 \label{subsec-CTLmca}
 \begin{algorithm}[H]
     \caption{CTL Model Checking}
-    \label{alg:CTLmc}
     \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS and CTL formula $\Phi$ (both over $AP$) \\
     \hspace*{\algorithmicindent} \emph{Output}: ``yes'' if $TS \vDash \Phi$; otherwise, ``no''
     \begin{algorithmic}[1]
@@ -348,14 +341,14 @@ The following algorithm sketches the procedure.
 We now formally define the set $Sat(\cdot)$ for every formula, possibly depending on the satisfaction set of subformulae. Let TS $ = (S, Act, \rightarrow, I, AP, L)$ be a transition system without terminal states. For all CTL formulae $\Phi$, $\Psi$ over $AP$ it holds:
 \begin{align*}
     & Sat(\text{true}) := S \\
-    & Sat(a) := \{ s \in S \mid a \in L(s) \}, for any a \in AP \\ 
+    & Sat(a) := \{ s \in S \mid a \in L(s) \}, \text{ for any a } \in AP \\ 
     & Sat( \Phi \land \Psi) := Sat(\Phi) \cap Sat(\Psi) \\ 
     & Sat(\neg \Phi) := S \setminus Sat(\Phi) \\ 
-    & Sat(\exists \llnext \Phi) := \{ s \in S \mid Post(s) \cap Sat(\Phi) \neq \varnothing \\
+    & Sat(\exists \lnext{\Phi}) := \{ s \in S \mid Post(s) \cap Sat(\Phi) \neq \varnothing \\
     & Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big) \text{ is the smallest subset T of S such that }: \\
-    & \text{   (1)   }(1) Sat(\Psi) \subseteq T \text{ and (2) } s \in Sat(\Phi) \text{ and } Post(s) \cap T \neq \varnothing \text{ implies } s \in T \\
+    & \text{   (1)   } Sat(\Psi) \subseteq T \text{ and (2) } s \in Sat(\Phi) \text{ and } Post(s) \cap T \neq \varnothing \text{ implies } s \in T \\
     & Sat(\exists \llglob \Phi) \text{is the largest subset T of S, such that }\\
-    &\text{   (3)   } T \subseteq Sat(\Phi) \text{ and } (4) s \in T \text{ implies } Post(s) \cap T \neq \varnothing \\
+    & \text{   (3)   } T \subseteq Sat(\Phi) \text{ and } (4) s \in T \text{ implies } Post(s) \cap T \neq \varnothing \\
 \end{align*}
 where
 \begin{align*}
@@ -369,7 +362,6 @@ To compute $Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big)$ and $Sat(\exists \llgl
 
 \begin{algorithm}[H]
     \caption{Computation of the satisfaction set for Until formulae}
-    \label{alg:CTLmc}
     \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS with state set S and CTL formula $\Phi_1 := \exists (\lluntil{\Phi}{\Psi})$(both over $AP$) \\
     \hspace*{\algorithmicindent} \emph{Output}: $Sat(\Phi_1) = \{ s \in S \mid s \vDash \Phi_1 \}$
     \begin{algorithmic}[1]
@@ -385,7 +377,6 @@ To compute $Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big)$ and $Sat(\exists \llgl
 
 \begin{algorithm}[H]
     \caption{Computation of the satisfaction set for Existential Always formulae}
-    \label{alg:CTLmc}
     \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS with state set S and CTL formula $\Phi_1 := \exists (\llglob \Phi)$(both over $AP$) \\
     \hspace*{\algorithmicindent} \emph{Output}: $Sat(\Phi_1) = \{ s \in S \mid s \vDash \Phi_1  \}$
     \begin{algorithmic}[1]
@@ -418,7 +409,23 @@ As before, it is encouraged to utilise external libraries for writing tests.
 It is required to write at least three unit tests for Module 1, and a test unit for Module 1.
 
 \subsection{Example} \label{subsec:example}
-\todo[inline]{write me}
+We give now an example of a Transition System and some formulae that hold for it. The example has been taken from \cite[Paragraph 2.1]{BaKa}.
+The following picture represents a preliminary design of a beverage vending machine. The machine can either deliver beer or soda. States are indicated by ovals and transitions by labelled edges. Every state is labelled with some description of the state itself. Initial states are indicated by having an incoming arrow without source.
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[scale = 0.50]{pictures/example.png}
+  \end{center}
+\end{figure}
+The following formulae hold for this TS:
+\begin{itemize}
+    \item $\{ \forall \lleven  \text{pay} \}$ := every path will eventually return to the initial state, which is labelled with ``pay'';
+    \item $\{ \exists \lleven \text{ soda} \}$ := it exists a path which eventually reaches the granting of a soda;
+    \item $\{ \exists \llglob \big(\text{ select } \implies  (\forall \lnext \text{ soda })\big) \}$ := it exists a path such that all selections are followed by the granting of a soda;
+\end{itemize}
+The following formula does not hold for the TS:
+\begin{itemize}
+    \item $\{ \forall (\lleven \text{ soda}) \}$ := every path with eventually reach the granting of a soda. This is not true, because the path which always selects the beer is feasible, and violates the specification.
+\end{itemize}
 
 \section{Extension 1 - Parsing MINI Programs (100 P)}
 \label{sec:ext1}
@@ -428,22 +435,107 @@ to model software programs. To help the user of your version of MiniCheck, we wi
 automated translation procedure for MINI programs into TS. MINI is the programming language of the other assignment of this course. In the following, we detail \textbf{our version of MINI}, which is even smaller that the original one, and then present how to translate a MINI program into an equivalent Transition System.
 
 \subsection{Informal Description}
-\todo[inline]{review me}
 This section informally describes the core of the MINI programming language, only covering the language core.
 
 MINI is a procedural programming language. The syntax and semantics of MINI are inspired by the \href{https://en.wikipedia.org/wiki/C_(programming_language)}{programming language C}.
 
-All code is contained in a single procedure \code{main} and variables are of the same type, namely the arbitrarily sized integer (Haskell type \code{Integer}). This means that the type of the variables is not explicitly specified in MINI. Variables are not required to be declared before definition.
+All code is contained in a single procedure \code{main} and variables are of the same type, namely the boolean type (Haskell type \code{Bool}). This means that the type of the variables is not explicitly specified in MINI. Variables are not required to be declared before definition.
 
-The procedure \code{main} implements a pure function, input/output functionality is not included in the core of MINI. Procedure \code{main} takes a defined set of named variables and returns a result. The last statement of the procedure must be a \code{return} statement and no other \code{return} statement can occur in the procedure. In contrast to common programming languages, \code{return} statements in MINI are syntactically restricted to return the value of a single variable instead of a general expression.
+The procedure \code{main} implements a inpure function, where input/output functionality \textbf{is  included in the core of MINI}. Procedure \code{main} takes a defined set of named variables and returns a result. The last statement of the procedure must be a \code{return} statement and no other \code{return} statement can occur in the procedure. In contrast to common programming languages, \code{return} statements in MINI are syntactically restricted to return the value of a single variable instead of a general expression.
 
-The \code{while} and \code{if} statements are defined as in C: the \code{while} statement implements a loop that executes the given block in a loop as long the test-expression evaluates to true. The \code{if} statement executes either the first or optionally the second block.
+The \code{if} statement is defined as in C. It executes either the first or optionally the second block.
 
-It is not necessary to declare variables before usage, however, it is necessary to define their value before usage, i.e. a variable must be initialised before it can be used in arithmetic and boolean expressions.
-Variables declared in the argument list are initialised with the values the procedure has been invoked with.
+It is not necessary to declare variables before usage, however, it is necessary to define their value before usage, i.e. a variable must be initialised before it can be used in boolean expressions.
+
+Regarding the variables in the argument lists, you need to consider all possible combinations of assignments of values for them, as we will see shortly with the definition of the semantics of a MINI program.
+
+Modern programming languages usually have a way to interact with a user via terminal or file system. We consider two statements: one that prints a boolean and one that reads a boolean value.
+We will see that, while these statements are a major issue for the interpreter, and it's hard to define their semantics of terms of a pure evaluation function, in the model checking problem they can be treated just as a source of non determinism, which is already there in the type of TS we are using.
+
+\subsection{Syntax}
+
+\begin{align*}
+program :=& \ \texttt{procedure main}\inParens{argument\_vars} \inBraces{procedure\_body} \\
+argument\_vars :=& \ var \ | \ var\comma argument\_vars \\
+procedure\_body :=& \ statements \quad return\_stmt \\ \\
+statements :=& \ \varepsilon \ | \ statement \quad statements \\
+statement :=&  \ if\_stmt \ | \ assign\_stmt \ | \ print\_bool\_stmt \ | \ read\_bool\_stmt\\
+if\_stmt :=& \ \texttt{if}\inParens{bool\_expr} \inBraces{statements}\\
+& \ | \ \texttt{if}\inParens{bool\_expr} \inBraces{statements} \texttt{else}\inBraces{statements} \\
+assign\_stmt :=& \ var \texttt{=} bool\_expr \semicolon \\
+print\_bool\_stmt :=& \ \texttt{print\_bool}\inParens{bool\_expr}\semicolon \\
+read\_bool\_stmt :=& \ var \texttt{=}\texttt{read\_bool}\inParens{}\semicolon \\
+bool\_expr :=& \ bool\_expr\_nested \ | \ \neg bool\_exp\_nested \\
+& \ | \ bool\_expr\_nested \quad relator \quad bool\_expr\_nested \\
+bool\_expr\_nested :=& \ bool \ | \ var \ | \ (bool\_expr) \\
+relator :=& \ \land \ | \ \lor \ | \ \implies \ | \ \iff | \ \oplus \\
+return\_stmt :=& \ \texttt{return }\space var \semicolon\\
+bool :=& \ \texttt{true} \ | \ \texttt{false} \\
+var :=& \ ident \\
+ident :=& \ char \quad ident\_rest \\
+ident\_rest :=& \ \varepsilon \ | \ ident\_char \quad ident\_rest \\
+ident\_char :=& \ char \ | \ digit \ | \ \texttt{\_} \\
+char :=& \ \texttt{a} \ | \ \ldots \ | \ \texttt{z} \\
+digit :=& \ \texttt{0} \ | \ \ldots \ | \ \texttt{9}
+\end{align*}
+
+Additional whitespace is allowed everywhere except within identifier names, integer literals, the binary comparison operators, and the keywords (\code{procedure}, \code{return}, \code{if}, \code{else}, \code{while}).
+
+\subsection{Semantics}
+We define now the semantics of a MINI program $P$ in terms of a Transition System, through the so-called \textbf{structural operation semantics(SOS)}. With this semantics, we mimic the step-by-step execution of the program through the transition relation of a Transition System. We have to follow the inference rules of the SOS to construct the state set and the transition relation of the corresponding TS.
+
+A state of the TS corresponds to the current program counter (i.e., the next instruction to be executed), and the current valuation of all the already occurred program variables.
+Formally, a state is given by $\langle P, \gamma \rangle$, where program $P$ is just viewed as a sequence of statements (i.e., the remaining program to be executed). 
+
+\subsubsection{The set of initial states}
+The set of initial state of a Transition System $I$ is composed by all possible combinations of initial boolean values for the set of arguments of the MINI program $P$. This can be represented in set notation by $2^{arg}$, where $arg$ is the set of arguments. Informally a subset of $arg$ contains all and only the variables that are evaluated to true in the current evaluation. The set of initial states is then defined as:
+\begin{align*}
+    I := \{ \langle P, \gamma \rangle \mid \gamma \in 2^{arg(P)} \}
+\end{align*}
+
+\subsubsection{The Transition Relation}
+The transition relation is then defined by the following transition rules, where the symbol $\downarrow$ indicates a state where there is no more program to parse.
+\begin{align*}
+    &\; \frac{\gamma \vDash \varphi}{\langle \text{if}(\varphi)\text{\{B\}; P}, \gamma \rangle \rightarrow \langle \text{ B;P }, \gamma \rangle} \\ \\
+    &\; \frac{\gamma \nvDash \varphi}{\langle \text{ if}(\varphi)\text{\{B\};P}, \gamma \rangle \rightarrow \langle \text{P}, \gamma \rangle} \\ \\
+    &\; \frac{\gamma \vDash \varphi}{\langle \text{if}(\varphi)\text{\{B\}else\{E\}; P}, \gamma \rangle \rightarrow \langle \text{ B;P }, \gamma \rangle} \\ \\
+    &\; \frac{\gamma \nvDash \varphi}{\langle \text{if}(\varphi)\text{\{B\}else\{E\}; P}, \gamma \rangle \rightarrow \langle \text{ E;P }, \gamma \rangle} \\ \\
+    &\;\frac{\gamma \vDash Expr \mapsto v}{\langle x:=Expr;P , \gamma \rangle \rightarrow \langle P,\gamma[x \mapsto v] \rangle } \\  \\
+    &\;\frac{}{\langle print\_bool(expr);P , \gamma\rangle \rightarrow \langle P, \gamma \rangle} \\  \\
+    &\;\frac{}{\langle x=read\_bool;P , \gamma \rangle \rightarrow \langle P,\gamma[x \mapsto T] \rangle \text{ and } \langle x=read\_bool;P , \gamma \rangle \rightarrow \langle P,\gamma[x \mapsto F] \rangle}\\ \\
+    &\;\frac{}{\langle return \text{ } x; \gamma \rangle \rightarrow \langle \downarrow, \gamma \rangle} \\ \\
+    &\;\frac{}{\langle \downarrow, \gamma \rangle \rightarrow \langle \downarrow, \gamma \rangle} \\
+\end{align*}
+
+We use the notation $\gamma\{x \mapsto v\}$ to denote the state that is obtained when updating the value of the variable $x$ to $v$. 
+
+The model checker aborts the verification of invalid programs. A program is invalid if a variable $x$ is not defined but used in an expression, which, in our semantics, corresponds to the fact that we are not able to establish, given an expression $Expr$ over program variables which includes $x$, if $\gamma \vDash Expr$, because there is no value for $x$ saved in $\gamma$.
 
 \subsubsection*{A Note about terminal states}
-\todo[inline]{write me}
+The last rule has been added due to a technical problem. While MINI programs are guaranteed to terminate for any input, the Transition Systems we have considered so far are defined over infinite runs, and require that there are no terminal states, i.e. that every state has at least an outgoing edge. To accomodate the two formalisms, we introduce a self loop in the final state of the program, which induces the required infinite run in the Transition System.
+
+\subsection{Examples}
+
+A procedure calculating the difference of two numbers:
+\begin{lstlisting}
+procedure main(a, b) {
+    c = a - b;
+    return c;
+}
+\end{lstlisting}
+
+A procedure calculating the minimum of two numbers:
+\begin{lstlisting}
+procedure main(a, b) {
+    if (a < b) {
+        c = a;
+    } else {
+        c = b;
+    }
+    return c;
+}
+\end{lstlisting}
+
 
 \section{Extension 2 - Bounded LTL model checking (100 P)}
 \label{sec:ext2}
@@ -526,10 +618,9 @@ use an external monadic parsing library from Hackage. Document your choice.
 We now outline the algorithm to be implemented. With a naive description, it is divided into three steps. Given a path $\pi := s_0 \dots s_k$, we define its corresponding trace $\sigma := L(s_0) \dots L(s_k)$ as $\sigma(\pi)$
 \begin{algorithm}[H]
     \caption{\textbf{k}-bounded  Model Checking}
-    \label{alg:CTLmc}
     \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS with initial states $I$, LTL formula $\varphi$ (both over $AP$), and bound $k$ \\
     \hspace*{\algorithmicindent} \emph{Output}: ``yes'' if $TS \vDash_k \Phi$; otherwise, ``no''
-    \begin{algorithmic}[1]
+    \begin{algorithmic}
     \State $\Pi := \{ \pi := s_0 \dots s_{k-1} \mid s_0 \in I \text{ and } \varpi \text{ is a valid path in TS} \}  $;
     \State $\Sigma := \{ \sigma(\pi) \mid  \pi \in \Pi$;
     \If{ $\forall \sigma \in \Sigma \big( \sigma \vDash_{k} \varphi \big)$ }
@@ -635,7 +726,6 @@ Unit tests and property tests need to be submitted as well, and it must be possi
 \subsubsection*{Project Documentation}
 
 The project documentation pdf should cover at least these topics and explain your choices.
-\todo[inline]{Add some appropriate questions here}
 \begin{itemize}
 \item Which project build tool is used for the project? (\texttt{cabal} or \texttt{stack})
 \item Which GHC version is used?
