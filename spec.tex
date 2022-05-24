@@ -73,7 +73,7 @@
 \thispagestyle{empty}
 \begin{center}
   {\Large \textbf{185.A05 Advanced Functional Programming SS 22}}  \\ [1ex] 
-            Monday, 05/02/2022 \\
+            Tuesay, 05/24/2022 \\
                {\Large \textbf{Assignment 5}} \\[.5ex]
               {\Large \textbf{Model Checking Project: MiniCheck}} \\[.5ex]
                  \textbf{All Chapters}  \\ [.75ex]
@@ -92,19 +92,29 @@
 
 \noindent
 The goal of the project is to implement a  Model Checker, \textit{MiniCheck}, 
-for the the so called Computational Tree Logic (CTL). 
-The project consists of two parts: the core model checker and the elective modular extensions. 
-In turn, the core model checker requires resp.: 
+for the so called Computational Tree Logic (CTL). 
+The project consists of two parts: the core model checker and 
+the elective modular extensions. 
+
+\paragraph{Part I - The MiniCheck Core.} The core model checker requires: 
 \begin{itemize}
-    \item a number of preliminary programming tasks (\textbf{Module 0}, cf.~Section \ref{subsec-ts} and \ref{subsec-ctl}).
-    \item a verification module which checks the input CTL formula on a Transition System (TS)(\textbf{Module 1}, cf.~Section \ref{subsec:mc}).
-
+    \item a number of preliminary programming tasks dealing with Transition Systems (TS)
+          and Computational Tree Logic (CTL) (cf.~Section \ref{subsec-ts} and \ref{subsec-ctl}).
+    \item a verification module which checks an input CTL formula on a TS (cf.~Section \ref{subsec:mc}).
+    \item a test suite allowing to validate the usability and correctness of the
+          various components of the core (cf.~Section \ref{subsec-testsuite}).
 \end{itemize}  
-The core is mandatory but is only worth a portion of the points achievable in this project.
+An illustrating example highlights the essence of model-checking in our setting (cf.~Section \ref{subsec:example}). Note that the core is mandatory but is only worth a portion of the points achievable in this project. To achieve the full amount of points some of the extensions have to be chosen and implemented, too.
 
-Sections  \ref{sec:ext1} and \ref{sec:ext2} present some extensions to MiniCheck. Each extension is worth the given amount of points. Note that none of the described extensions are necessary for a positive grade.
+\paragraph{Part II - The MiniCheck Extensions.} The extensions of the MiniCheck core concern 
+\begin{itemize}
+    \item software model checking (cf.~Section \ref{sec:ext1})
+    \item bounded linear time logic model-checking (cf.~Section \ref{sec:ext2})
+\end{itemize}
+Each extension is worth the shown amount of points. Note that none of the described extensions are necessary for a positive grade. Additionally, there is a bonus task allowing to achieve even more than the full amount of points for the project (cf.~Section \ref{sec-bonus}). 
+\bigskip
 
-In contrast to previous exercises, you are not asked to implement functions with given signatures. 
+In Section \ref{sec:artefacts}, finally, the submission artefacts are detailed. In contrast to previous assignments, you are not asked to implement functions with given signatures. 
 Instead, the functionality of the executed program is evaluated. 
 You will have to design your own function signatures and data types and decide 
 which data structures you want to use.
@@ -119,14 +129,15 @@ The date will be announced via TUWEL news.
 
 \section{Grading}
 
-The preliminary programming tasks with a parser at its core (\textbf{Module 0}) and 
-the verification module (\textbf{Module 1}) of MiniCheck are mandatory. 
+The preliminary programming tasks with two parsers at its core (cf.~Section \ref{subsec-ts} and \ref{subsec-ctl}), the verification module (cf.~Section \ref{subsec:mc}) 
+and the test suite (cf.~Section \ref{subsec-testsuite}) of MiniCheck are mandatory. 
 Implementing this core awards up to 200 points. The project presentation will be worth up to 100 points. 
 To gain more points on top of the aforementioned, you can choose from some modelling 
-and verification extensions of the MiniCheck tool.
+and verification extensions of the MiniCheck tool (cf.~Section \ref{sec:ext1} and \ref{sec:ext2}) and the bonus task (cf.~Section \ref{sec-bonus}).
 
 For a positive evaluation of this project at least 200 points are required. 
 A positive grade on the project is necessary in order to receive a positive grade in this course. 
+
 The total points for the project are calculated by adding up the points on the core, 
 the selected extensions and the submission talk. A positive grade on the core itself is \textit{not} required. 
 At most 300 points are awarded for the project implementation.
@@ -144,12 +155,12 @@ and makes the project smaller, but it's not mandatory. This includes also:
 See, e.g., \cite{BaKa} for details (a PDF version is available on the 
 \href{https://github.com/francescopont/MiniCheck.git}{Github repository}).
 
-\section{MiniCheck Core (200P)}
+\section{MiniCheck Core (200 P)}
 
 Model Checking consists of formally and exhaustively verifying a formula 
 against all the possible executions of a particular type of automata. 
 In the following, we provide some preliminary information 
-about the type the formalisms you are required to support, 
+about the type of the formalisms you are required to support, 
 and then present the project to carry out. 
 For a complete and deeper introduction to our approach in model checking, 
 please, refer to \cite{BaKa}.
@@ -183,13 +194,13 @@ Define:
     \item a suitable plain-text representation of TS such that TS written in this representation
           can be passed as input to your tool, and
     \item a data type to represent them. 
-    \item the type of the set of atomic propositions that can be used to label states of the           Transition System.These are usually either a description of the state (e.g., OFF for a         system that describes a lightbulb) or a property that holds in the state (e.g. $nsoda == 0$     for a system that describes the functioning of a soda vending machine). We refer to  the       example in Section \ref{subsec:example}
+    \item the type of the set of atomic propositions that can be used to label states of the           Transition System.These are usually either a description of the state (e.g., OFF for a         system that describes a lightbulb) or a property that holds in the state (e.g. $nsoda == 0$     for a system that describes the functioning of a soda vending machine). We refer to  the       example in Section \ref{subsec:example}.
 \end{itemize} 
 Implement: 
 \begin{itemize}
     \item A parsing function from the plain-text representation of TS to the data type.
 \end{itemize}
-Take care of making sure that there are no terminal states, that there is at least an initial state, and that your formalisation of the set of atomic proposition is respected. The parsing function should abort when it encounters a non well-formed Transition System.
+Take care of making sure that there are no terminal states, that there is at least an initial state, and that your formalisation of the set of atomic propositions is respected. The parsing function should abort when it encounters a non well-formed Transition System.
 
 You are allowed to choose one of the parsing approaches presented in the lecture or 
 use an external monadic parsing library from Hackage. Document your choice.
@@ -202,9 +213,9 @@ We require that a state is always labelled with itself
 To express properties to verify on Transition Systems, we consider a temporal extension of propositional logic, i.e., the introduction of temporal modalities on top of propositional logic. 
 
 In particular, the temporal modalities we consider are $\ocircle$ (pronounced ``next'') and $\luntilbase$ (pronounced ``until'').
-These temporal modalities allow to constraint the future states (or, in fact, their labels), that can be visited by a path.
+These temporal modalities allow to constrain the future states (or, in fact, their labels), that can be visited by a path.
 
-Moreover, CTL (differently with respect to some other logics, e.g. LTL) is based on a \emph{branching} notion of time. With this approach, future time corresponds to an infinite tree of states than can be visited after the current one. Infact, branching time refers to the fact that at each moment there may be several different possible futures. By fixing a choice of a state at every subtree, we get one of all \emph{possible} futures. 
+Moreover, CTL (differently with respect to some other logics, e.g. LTL) is based on a \emph{branching} notion of time. With this approach, future time corresponds to an infinite tree of states than can be visited after the current one. In fact, branching time refers to the fact that at each moment there may be several different possible futures. By fixing a choice of a state at every subtree, we get one of all \emph{possible} futures. 
 Each traversal of the tree starting in its root represent a single path. The tree rooted at state $s$ thus represents all possible infinite computations in the transition system that start in $s$.
 
 Computation Tree Logic (CTL) thus allows to express properties for \emph{some} or \emph{all} computations that start in a state. For this purpose, it features two operators: an existential path quantifier ($\exists$) and a universal path quantifier ($\forall$). Intuitively, $\exists \varphi$ holds in a state if there exists \emph{some} path satisfying $\varphi$ that starts in that state. Dually, $\forall \varphi$ holds in a state if \emph{all} states starting in that state satisfy $\varphi$.
@@ -285,7 +296,7 @@ The results of a model check query should be printed on the CLI (command line in
 \subsubsection*{Resources}
 \cite[Paragraph 6.2 (in particular 6.1.1 and 6.1.2)]{BaKa}
 
-\subsection*{Module 1 - The Model Checking procedure}
+\subsection{The Model Checking procedure}
 \label{subsec:mc}
 The model checking procedure for CTL formulas differs completely from automata-based procedures, like in LTL verification. It's essentially a bottom-up traversal of the parse tree of the formula at hand, and it is considered way more efficient and straightforward, since it does not involve any notion of corresponding automaton for the input formula. Instead, given a TS and a CTL formula $\Phi$, to verify whether TS $\vDash \Phi$, we establish whether $\Phi$ is valid in each initial state $s$ of TS directly using $s$ and TD. 
 Therefore, the procedure is roughly composed of two steps: 
@@ -345,7 +356,7 @@ We now formally define the set $Sat(\cdot)$ for every formula, possibly dependin
     & Sat( \Phi \land \Psi) := Sat(\Phi) \cap Sat(\Psi) \\ 
     & Sat(\neg \Phi) := S \setminus Sat(\Phi) \\ 
     & Sat(\exists \lnext{\Phi}) := \{ s \in S \mid Post(s) \cap Sat(\Phi) \neq \varnothing \\
-    & Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big) \text{ is the smallest subset T of S such that }: \\
+    & Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big) \text{ is the smallest subset T of S such that}: \\
     & \text{   (1)   } Sat(\Psi) \subseteq T \text{ and (2) } s \in Sat(\Phi) \text{ and } Post(s) \cap T \neq \varnothing \text{ implies } s \in T \\
     & Sat(\exists \llglob \Phi) \text{is the largest subset T of S, such that }\\
     & \text{   (3)   } T \subseteq Sat(\Phi) \text{ and } (4) s \in T \text{ implies } Post(s) \cap T \neq \varnothing \\
@@ -356,13 +367,13 @@ where
 \end{align*}
 is just the set of successors of a state.
 
-\subsubsection{How to computer $Sat(\cdot)$}
+\subsubsection{How to compute $Sat(\cdot)$}
 For most cases, you can just stick to the definition. There are only two critical situations.
 To compute $Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big)$ and $Sat(\exists \llglob \Phi)$, an iterative approach is required to compute respectively the smallest subset and the greatest subset that verify the property. The two algorithms are sketched here.
 
 \begin{algorithm}[H]
     \caption{Computation of the satisfaction set for Until formulae}
-    \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS with state set S and CTL formula $\Phi_1 := \exists (\lluntil{\Phi}{\Psi})$(both over $AP$) \\
+    \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS with state set S and CTL formula $\Phi_1 := \exists (\lluntil{\Phi}{\Psi})$ (both over $AP$) \\
     \hspace*{\algorithmicindent} \emph{Output}: $Sat(\Phi_1) = \{ s \in S \mid s \vDash \Phi_1 \}$
     \begin{algorithmic}[1]
         \State T := $Sat(\Psi)$; (* compute the smallest fixpoint *)
@@ -377,7 +388,7 @@ To compute $Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big)$ and $Sat(\exists \llgl
 
 \begin{algorithm}[H]
     \caption{Computation of the satisfaction set for Existential Always formulae}
-    \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS with state set S and CTL formula $\Phi_1 := \exists (\llglob \Phi)$(both over $AP$) \\
+    \hspace*{\algorithmicindent} \emph{Input}: finite transition system TS with state set S and CTL formula $\Phi_1 := \exists (\llglob \Phi)$ (both over $AP$) \\
     \hspace*{\algorithmicindent} \emph{Output}: $Sat(\Phi_1) = \{ s \in S \mid s \vDash \Phi_1  \}$
     \begin{algorithmic}[1]
         \State T := $Sat(\Phi)$; (* compute the greatest fixpoint *)
@@ -394,6 +405,7 @@ To compute $Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big)$ and $Sat(\exists \llgl
 Implement the model checking algorithm presented here.
 
 \subsection{Test Suite}
+\label{subsec-testsuite}
 Projects of this size profit from an automatic test-suite. 
 Write a test-suite for the major components of the project using one of the following frameworks:
 
@@ -406,7 +418,9 @@ Write a test-suite for the major components of the project using one of the foll
 
 As before, it is encouraged to utilise external libraries for writing tests.
 
-It is required to write at least three unit tests for Module 1, and a test unit for Module 1.
+It is required to write at least three unit tests for the components of
+Section \ref{subsec-ts} and \ref{subsec-ctl}, and a test unit for the
+components of Section \ref{subsec:mc}.
 
 \subsection{Example} \label{subsec:example}
 We give now an example of a Transition System and some formulae that hold for it. The example has been taken from \cite[Paragraph 2.1]{BaKa}.
@@ -416,7 +430,7 @@ The following picture represents a preliminary design of a beverage vending mach
       \includegraphics[scale = 0.50]{pictures/example.png}
   \end{center}
 \end{figure}
-The following formulae hold for this TS:
+The following formulae hold for this TS (note, $\tau$ denotes an internal transition of the TS):
 \begin{itemize}
     \item $\{ \forall \lleven  \text{pay} \}$ := every path will eventually return to the initial state, which is labelled with ``pay'';
     \item $\{ \exists \lleven \text{ soda} \}$ := it exists a path which eventually reaches the granting of a soda;
@@ -427,12 +441,12 @@ The following formula does not hold for the TS:
     \item $\{ \forall (\lleven \text{ soda}) \}$ := every path with eventually reach the granting of a soda. This is not true, because the path which always selects the beer is feasible, and violates the specification.
 \end{itemize}
 
-\section{Extension 1 - Parsing MINI Programs (100 P)}
+\section{Extension 1 - Parsing MINI$^{--}$ Programs (100 P)}
 \label{sec:ext1}
 With this extension, you are required to extend the modelling power of MiniCheck targeting 
-software verication. While TS are good for expressing hardware models, they may be too low-level 
+software verification. While TS are good for expressing hardware models, they may be too low-level 
 to model software programs. To help the user of your version of MiniCheck, we will implement an 
-automated translation procedure for MINI programs into TS. MINI is the programming language of the other assignment of this course. In the following, we detail \textbf{our version of MINI}, which is even smaller that the original one, and then present how to translate a MINI program into an equivalent Transition System.
+automated translation procedure for MINI$^{--}$ programs into TS. MINI$^{--}$ is a flattened version of the programming language MINI of the other project assignment of this course. In the following, we detail this version of MINI, called MINI$^{--}$, which is even smaller that MINI, and then present how to translate a MINI$^{--}$ program into an equivalent Transition System.
 
 \subsection{Informal Description}
 This section informally describes the core of the MINI programming language, only covering the language core.
@@ -441,16 +455,16 @@ MINI is a procedural programming language. The syntax and semantics of MINI are 
 
 All code is contained in a single procedure \code{main} and variables are of the same type, namely the boolean type (Haskell type \code{Bool}). This means that the type of the variables is not explicitly specified in MINI. Variables are not required to be declared before definition.
 
-The procedure \code{main} implements a inpure function, where input/output functionality \textbf{is  included in the core of MINI}. Procedure \code{main} takes a defined set of named variables and returns a result. The last statement of the procedure must be a \code{return} statement and no other \code{return} statement can occur in the procedure. In contrast to common programming languages, \code{return} statements in MINI are syntactically restricted to return the value of a single variable instead of a general expression.
+The procedure \code{main} implements an impure function, where input/output functionality \textbf{is  included in the core of MINI}. Procedure \code{main} takes a defined set of named variables and returns a result. The last statement of the procedure must be a \code{return} statement and no other \code{return} statement can occur in the procedure. In contrast to common programming languages, \code{return} statements in MINI are syntactically restricted to return the value of a single variable instead of a general expression.
 
 The \code{if} statement is defined as in C. It executes either the first or optionally the second block.
 
-It is not necessary to declare variables before usage, however, it is necessary to define their value before usage, i.e. a variable must be initialised before it can be used in boolean expressions.
+It is not necessary to declare variables before usage, however, it is necessary to define their value before usage, i.e.~a variable must be initialised before it can be used in boolean expressions.
 
 Regarding the variables in the argument lists, you need to consider all possible combinations of assignments of values for them, as we will see shortly with the definition of the semantics of a MINI program.
 
 Modern programming languages usually have a way to interact with a user via terminal or file system. We consider two statements: one that prints a boolean and one that reads a boolean value.
-We will see that, while these statements are a major issue for the interpreter, and it's hard to define their semantics of terms of a pure evaluation function, in the model checking problem they can be treated just as a source of non determinism, which is already there in the type of TS we are using.
+We will see that, while these statements are a major issue for the interpreter, and it's hard to define their semantics in terms of a pure evaluation function, in the model checking problem they can be treated just as a source of non-determinism, which is already there in the type of TS we are using.
 
 \subsection{Syntax}
 
@@ -482,7 +496,7 @@ digit :=& \ \texttt{0} \ | \ \ldots \ | \ \texttt{9}
 Additional whitespace is allowed everywhere except within identifier names, integer literals, the binary comparison operators, and the keywords (\code{procedure}, \code{return}, \code{if}, \code{else}, \code{while}).
 
 \subsection{Semantics}
-We define now the semantics of a MINI program $P$ in terms of a Transition System, through the so-called \textbf{structural operation semantics(SOS)}. With this semantics, we mimic the step-by-step execution of the program through the transition relation of a Transition System. We have to follow the inference rules of the SOS to construct the state set and the transition relation of the corresponding TS.
+We define now the semantics of a MINI program $P$ in terms of a Transition System, through the so-called \textbf{structural operational semantics (SOS)}. With this semantics, we mimic the step-by-step execution of the program through the transition relation of a Transition System. We have to follow the inference rules of the SOS to construct the state set and the transition relation of the corresponding TS.
 
 A state of the TS corresponds to the current program counter (i.e., the next instruction to be executed), and the current valuation of all the already occurred program variables.
 Formally, a state is given by $\langle P, \gamma \rangle$, where program $P$ is just viewed as a sequence of statements (i.e., the remaining program to be executed). 
@@ -512,7 +526,7 @@ We use the notation $\gamma\{x \mapsto v\}$ to denote the state that is obtained
 The model checker aborts the verification of invalid programs. A program is invalid if a variable $x$ is not defined but used in an expression, which, in our semantics, corresponds to the fact that we are not able to establish, given an expression $Expr$ over program variables which includes $x$, if $\gamma \vDash Expr$, because there is no value for $x$ saved in $\gamma$.
 
 \subsubsection*{A Note about terminal states}
-The last rule has been added due to a technical problem. While MINI programs are guaranteed to terminate for any input, the Transition Systems we have considered so far are defined over infinite runs, and require that there are no terminal states, i.e. that every state has at least an outgoing edge. To accomodate the two formalisms, we introduce a self loop in the final state of the program, which induces the required infinite run in the Transition System.
+The last rule has been added due to a technical problem. While MINI programs are guaranteed to terminate for any input, the Transition Systems we have considered so far are defined over infinite runs, and require that there are no terminal states, i.e.~that every state has at least one outgoing edge. To accommodate the two formalisms, we introduce a self loop in the final state of the program, which induces the required infinite run in the Transition System.
 
 \subsection{Examples}
 
@@ -537,7 +551,7 @@ procedure main(a, b) {
 \end{lstlisting}
 
 
-\section{Extension 2 - Bounded LTL model checking (100 P)}
+\section{Extension 2 - Bounded LTL Model Checking (100 P)}
 \label{sec:ext2}
 With this extension, you are required to extend the verification power of MiniCheck targeting a different class of properties, namely, those expressed through the so called \emph{Linear Temporal Logic}. LTL embraces a \emph{linear} view of the time, which means that at each moment of time there is only one possible successor state and thus each moment has a unique possible future. This follows from the fact that LTL is path-based, i.e. LTL formula are interpreted only in terms of sequences of states. The interpretation of a LTL formula $\varphi$ over a state $s$ requires that $\varphi$ is satisfied by all possible computations (paths) that start in $s$.
 
@@ -567,7 +581,7 @@ Likewise, we re-derive some well-known temporal modalities (pronounced ``eventua
 You are required to handle all and only these operators.
 
 \subsection*{Semantics}
-We define the semantics of LTL formulas over a trace of a Transition System ($S, Act, \rightarrow, I, AP, L$). 
+We define the semantics of LTL formulae over a trace of a Transition System ($S, Act, \rightarrow, I, AP, L$). 
 Given an infinite sequence of states $s_0s_1s_2 \dots$ (i.e.~a path) of the TS, 
 its trace is just the induced infinite sequence of atomic propositions $ \sigma = L(s_0)L(s_1) \dots \in (2^{AP})^{\omega}$.
 Let $\sigma = A_0A_1A_2 \dots$ be an infinite word over $2^{AP}$. Then $\vDash$ is defined by:
@@ -580,12 +594,12 @@ Let $\sigma = A_0A_1A_2 \dots$ be an infinite word over $2^{AP}$. Then $\vDash$ 
     &\; \sigma \vDash \lluntil{\varphi_1}{\varphi_2} \text{ iff } \exists j \geqslant 0 .  \sigma [ j \dots ] \vDash \varphi_2 \text{ and } \sigma [ i \dots ] \vDash \varPhi_1 \text{, for all } 0 \leqslant  i < j
 \end{align*}
 An LTL formula $\varphi$ holds in a path $\pi$ if it holds for $trace(\pi)$. 
-IT holds for a state $s$ if it holds for all paths starting in $s$.
+It holds for a state $s$ if it holds for all paths starting in $s$.
 It holds for a TS if and only if it holds for all the infinite paths 
 starting in an initial state of the TS, or, in other words, if it holds for all initial states.
 
 \subsection*{Semantics over non maximal paths}
-While the semantics of LTL is defined over infinite paths, with our approach we deal with \textbf{finite} paths. Since the TS has no terminal state, these also have the property to be \textbf{non maximal}, i.e. they can always be prolonged, since every state has at least one successor. This raises an issue with the semantics of the $\lluntil{}{}$ operator we have defined, since it's an unbounded operator. With the current semantics, we may not be able to establish if a finite path $\sigma$ of size $k$ satisfies $\lluntil{\varphi_1}{\varphi_2}$, since the index $j$ such that $\sigma [ j \dots ] \vDash \varphi_2$ may be greater that the bound $k$. Therefore, we have to restrict the semantics of our LTL formulae to force the satisfaction of $\varphi_2$ whithin at most $k$ steps. This leads us to:
+While the semantics of LTL is defined over infinite paths, with our approach we deal with \textbf{finite} paths. Since the TS has no terminal state, these also have the property to be \textbf{non maximal}, i.e.~they can always be prolonged, since every state has at least one successor. This raises an issue with the semantics of the $\lluntil{}{}$ operator we have defined, since it's an unbounded operator. With the current semantics, we may not be able to establish if a finite path $\sigma$ of size $k$ satisfies $\lluntil{\varphi_1}{\varphi_2}$, since the index $j$ such that $\sigma [ j \dots ] \vDash \varphi_2$ may be greater than the bound $k$. Therefore, we have to restrict the semantics of our LTL formulae to force the satisfaction of $\varphi_2$ whithin at most $k$ steps. This leads us to:
 \begin{align*}
     &\; \sigma \vDash_k \lluntil{\varphi_1}{\varphi_2} \text{ iff } \exists j. 0 \leqslant j < k \text{ and }  \sigma [ j \dots (k-1)] \vDash_k \varphi_2 \text{ and } \sigma [ i \dots (k-1)] \vDash_k \varPhi_1 \text{, for all } 0 \leqslant  i < j
 \end{align*}
@@ -599,7 +613,7 @@ Likewise, we update the semantics of the other operators for coherence.
     &\; \sigma \vDash_k \lnext{\varphi} \text{ iff } \sigma [1 \dots (k-1)] = A_1 \dots A_{k-1} \vDash_k \varphi \\
 \end{align*}
 
-\subsection*{Task 0 - Parsing LTL}
+\subsection*{Task 1 - Parsing LTL}
 Define:
 \begin{itemize}
     \item a suitable plain-text representation of LTL formulae such that formulae written in this representation can be passed as input to your tool, and
@@ -614,7 +628,7 @@ Implement:
 You are allowed to choose one of the parsing approaches presented in the lecture or 
 use an external monadic parsing library from Hackage. Document your choice.
 
-\subsection*{Task 1 - Bounded LTL Model Checking}
+\subsection*{Task 2 - Bounded LTL Model Checking}
 We now outline the algorithm to be implemented. With a naive description, it is divided into three steps. Given a path $\pi := s_0 \dots s_k$, we define its corresponding trace $\sigma := L(s_0) \dots L(s_k)$ as $\sigma(\pi)$
 \begin{algorithm}[H]
     \caption{\textbf{k}-bounded  Model Checking}
@@ -627,13 +641,15 @@ We now outline the algorithm to be implemented. With a naive description, it is 
         \State return ``yes''
     \Else 
         \State return ``no''
+    \EndIf
     \end{algorithmic}
 \end{algorithm}
 
 \subsection*{Resources}
 \cite[Paragraph 5.1 (in particular 5.1.1 and 5.1.2)]{BaKa}
 
-\section{Bonus Task: Project Management (25P)}
+\section{Bonus Task: Project Management (25 P)}
+\label{sec-bonus}
 
 There is more to a successful project than just writing code. 
 Usually, you also need to write proper documentation, distribute it, etc...
@@ -660,7 +676,7 @@ The program should be able to understand the following flags:
 \item On \code{-h}/\code{--help}, a help message should be displayed, explaining how the program can be invoked correctly.
 \item On \code{--ts}, the input transition system should be parsed for correctness of the syntax of the input file, but no formula is verified on it.
 \item On \code{--extensions}, a list of supported MINI extensions is printed.
-\item Other flags as you see appropriate. (optional. not graded)
+\item Other flags as you see appropriate. (optional, not graded)
 \end{itemize}
 
 \subsection{Documentation}
@@ -711,7 +727,8 @@ Answer the following questions:
 \item Which type requires the most amount of memory?
 \end{itemize}
 
-\section{Submission artefacts}
+\section{Submission Artefacts}
+\label{sec:artefacts}
 
 You should submit a zip-archive containing all project source files and a PDF with detailed project documentation in your group submission directory.
 
@@ -731,14 +748,14 @@ The project documentation pdf should cover at least these topics and explain you
 \item Which GHC version is used?
 \item How can the program binary be built? How can it be run?
 \item Which libraries are included as dependencies and which Haskell language extensions are enabled?
-\item Which Framework and libraries are used for writing tests?
+\item Which framework and libraries are used for writing tests?
 \item Which MiniCheck extensions are implemented?
 \item How is the functionality partitioned into different modules?
 \item How do you test your program? Which parts are the focus of your tests? Do there exist parts of the code that cannot be tested?
 \item Are there known issues and limitations of your program?
 \end{itemize}
 
-\vspace*{1cm}
+%\vspace*{1cm}
 
 \printbibliography
 
