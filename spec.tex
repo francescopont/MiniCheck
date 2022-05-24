@@ -223,12 +223,12 @@ Computation Tree Logic (CTL) thus allows to express properties for \emph{some} o
 The atomic proposition $a \in AP$ stands for the state label $a$ in a TS.
 
 \subsubsection*{CTL Syntax}
-Given a set $AP$ of atomic propositions, with $a \in AP$, CTL formulas follow the following syntax: 
+Given a set $AP$ of atomic propositions, with $a \in AP$, CTL formulae follow the following syntax: 
 \begin{align*}
-    & \emph{(state) formulas} & \Phi ::= \text{true} \mid a \mid \Phi_1 \land \Phi_2 \mid \neg \Phi \mid \exists \varphi \mid \forall \varphi \\
-    & \emph{path formulas}    & \varphi ::= \lnext{\Phi} \mid \lluntil{\Phi_1}{\Phi_2}
+    \emph{(state) formulae } & \Phi ::= \text{true} \mid a \mid \Phi_1 \land \Phi_2 \mid \neg \Phi \mid \exists \varphi \mid \forall \varphi \\
+    \emph{path formulae   }    & \varphi ::= \lnext{\Phi} \mid \lluntil{\Phi_1}{\Phi_2} \\
 \end{align*}
-Greek capital letters denote CTL (state) formulas, whereas lowercase Greek letters denote CTL path formulas. 
+Greek capital letters denote CTL (state) formulae, whereas lowercase Greek letters denote CTL path formulae. 
 A well defined CTL formula is a CTL state formula.
 
 In addition, we introduce the following \emph{derived} Boolean operators for state formulae: 
@@ -257,12 +257,12 @@ These operators can be derived from the base operators through the following
 You are required to handle all and only these operators (this excludes the weak until operator, for example).
 
 \subsubsection*{Hint about derived operators}
-If your code translates formulas with derived operators into formulae 
+If your code translates formulae with derived operators into formulae 
 with only base operators through these equivalence rules, you will have implemented support of 
 derived operators for free (even if performances will suffer).
 
 \subsubsection*{CTL Semantics}
-Given atomic proposition $a \in AP$, $TS = (S, Act, \rightarrow, I, AP, L)$, state $s \in S$, CTL state formulas $\Phi, \Psi$, CTL path formula $\varphi$, the semantics of CTL is defined in terms of the following satisfaction relation $\vDash$ (pronounced ``satisfies") for state $s$. We recall that $s \vDash \Phi$ if and only if $\Phi$ holds in $s$.
+Given atomic proposition $a \in AP$, $TS = (S, Act, \rightarrow, I, AP, L)$, state $s \in S$, CTL state formulae $\Phi, \Psi$, CTL path formula $\varphi$, the semantics of CTL is defined in terms of the following satisfaction relation $\vDash$ (pronounced ``satisfies") for state $s$. We recall that $s \vDash \Phi$ if and only if $\Phi$ holds in $s$.
 \begin{align*}
      & \sigma \vDash \text{true} & \\
      & \sigma \vDash a &\; \text{ iff } & a \in L(s) \\ 
@@ -272,7 +272,7 @@ Given atomic proposition $a \in AP$, $TS = (S, Act, \rightarrow, I, AP, L)$, sta
      & \sigma \vDash \forall \varphi & \text{ iff }& \pi \vDash \varphi \text{ for all } \pi \in Paths(s) \\ 
 \end{align*}
 
-Given a path $\pi$, $\vDash$ is defined for path formulas as follows: 
+Given a path $\pi$, $\vDash$ is defined for path formulae as follows: 
 \begin{align*}
     & \pi \vDash \lnext{\Phi} & \text{ iff } \pi[1]  \vDash \Phi \\ 
     & \pi \vDash \lluntil{\Phi}{\Psi} & \text{ iff } \exists j \geqslant 0. (\pi[j]  \vDash \Psi \land (\forall 0 \leqslant k < j. \pi[k]  \vDash \Phi))
@@ -283,9 +283,9 @@ A TS satisfies CTL formula $\Phi$ if and only if $\Phi$ holds for all initial st
 \subsubsection*{Task}
 Define:
 \begin{itemize}
-    \item a suitable plain-text representation of CTL formulas such that formulas written in this representation can be passed as input to your tool, and 
+    \item a suitable plain-text representation of CTL formulae such that formulae written in this representation can be passed as input to your tool, and 
     \item a data type to represent them.
-    \item the type of the set of atomic propositions ($APs$) that can be used in the formulas (the same reasoning for LTL $APs$ applies).
+    \item the type of the set of atomic propositions ($APs$) that can be used in the formulae (the same reasoning for LTL $APs$ applies).
 \end{itemize}
 
 \subsubsection*{Task}
@@ -298,7 +298,7 @@ The results of a model check query should be printed on the CLI (command line in
 
 \subsection{The Model Checking procedure}
 \label{subsec:mc}
-The model checking procedure for CTL formulas differs completely from automata-based procedures, like in LTL verification. It's essentially a bottom-up traversal of the parse tree of the formula at hand, and it is considered way more efficient and straightforward, since it does not involve any notion of corresponding automaton for the input formula. Instead, given a TS and a CTL formula $\Phi$, to verify whether TS $\vDash \Phi$, we establish whether $\Phi$ is valid in each initial state $s$ of TS directly using $s$ and TD. 
+The model checking procedure for CTL formulae differs completely from automata-based procedures, like in LTL verification. It's essentially a bottom-up traversal of the parse tree of the formula at hand, and it is considered way more efficient and straightforward, since it does not involve any notion of corresponding automaton for the input formula. Instead, given a TS and a CTL formula $\Phi$, to verify whether TS $\vDash \Phi$, we establish whether $\Phi$ is valid in each initial state $s$ of TS directly using $s$ and TD. 
 Therefore, the procedure is roughly composed of two steps: 
 \begin{itemize}
     \item computing the set $Sat(\Phi)$ of all states satisfying $\Phi$ (recursively), and
@@ -335,8 +335,8 @@ The following algorithm sketches the procedure.
     \hspace*{\algorithmicindent} \emph{Output}: ``yes'' if $TS \vDash \Phi$; otherwise, ``no''
     \begin{algorithmic}[1]
     \Function{$SatFun$}{$\phi$}
-        \If{$\phi$ contains state subformulas}
-            \State // for children nodes $\psi_1, \psi_2$ of the parse tree of $\phi$, the so called \emph{maximal proper subformulas}
+        \If{$\phi$ contains state subformulae}
+            \State // for children nodes $\psi_1, \psi_2$ of the parse tree of $\phi$, the so called \emph{maximal proper subformulae}
             \State $Sat(\psi_1) = SatFun(\psi_1)$; $Sat(\psi_2) = SatFun(\psi_2)$ 
             \State combine $Sat(\psi_1), Sat(\psi_2)$ depending on the operator of $\phi$ ($\land, \exists\lnext, \exists\mathbin{\mathcal{U}}, \exists\llglob$).
         \Else
@@ -502,7 +502,7 @@ A state of the TS corresponds to the current program counter (i.e., the next ins
 Formally, a state is given by $\langle P, \gamma \rangle$, where program $P$ is just viewed as a sequence of statements (i.e., the remaining program to be executed). 
 
 \subsubsection{The set of initial states}
-The set of initial state of a Transition System $I$ is composed by all possible combinations of initial boolean values for the set of arguments of the MINI program $P$. This can be represented in set notation by $2^{arg}$, where $arg$ is the set of arguments. Informally a subset of $arg$ contains all and only the variables that are evaluated to true in the current evaluation. The set of initial states is then defined as:
+The set of initial state of a Transition System $I$ is composed by all possible combinations of initial boolean values for the set of arguments of the MINI program $P$. This can be represented in set notation by $2^{arg(P)}$, where $arg$ is the set of arguments of $P$. Informally a subset of $arg$ contains all and only the variables that are evaluated to true in the current evaluation. The set of initial states is then defined as:
 \begin{align*}
     I := \{ \langle P, \gamma \rangle \mid \gamma \in 2^{arg(P)} \}
 \end{align*}
@@ -562,7 +562,7 @@ As modelling formalism, we will use the same as the core modules, i.e. Transitio
 In the following, we will provide some information about LTL, and then present the tasks to be implemented with this extension.
 
 \subsection*{Syntax}
-Given a set $AP$ of atomic propositions, with $a \in AP$, LTL formulas follow the following syntax: 
+Given a set $AP$ of atomic propositions, with $a \in AP$, LTL formulae follow the following syntax: 
 \begin{align*}
     &\; \varphi ::= \text{true} \mid a \mid \varphi_1 \land \varphi_2 \mid \neg \varphi \mid \lnext{\varphi} \mid \lluntil{\varphi_1}{\varphi_2}
 \end{align*}
