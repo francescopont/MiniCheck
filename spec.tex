@@ -66,11 +66,8 @@
 
 \newcommand{\assnumber}{5}
 
-\pagestyle{empty}
-
 \begin{document}
 \large
-\thispagestyle{empty}
 \begin{center}
   {\Large \textbf{185.A05 Advanced Functional Programming SS 23}}  \\ [1ex] 
             Thursday, 04/05/2023 \\
@@ -78,7 +75,7 @@
               {\Large \textbf{Model Checking Project: MiniCheck}} \\[.5ex]
                  \textbf{All Chapters}  \\ [.75ex]
            \textbf{Topic:} Building a CTL Model Checker plus Implementing a Choice of Modelling/Verification Extensions  \\[1ex]
-          \textbf{Submission deadline:} Friday, 9th June 2023, noon (no second submission)  \\ [0.5ex]
+          \textbf{Submission deadline:} Friday, 9th June 2023, noon (no continuous update)  \\ [0.5ex]
           \textbf{Contact:} prof. Jens Knoop, jens.knoop@tuwien.ac.at, \\
                             Maximilian Podpera, maximilian.podpera@tuwien.ac.at, \\
                             Francesco Pontiggia, francesco.pontiggia@tuwien.ac.at \\
@@ -143,7 +140,7 @@ The total points for the project are calculated by adding up the points on the c
 the selected extensions and the submission talk. A positive grade on the core itself is \textit{not} required. 
 At most 300 points are awarded for the project implementation.
 
-In contrast to previous exercises, there is no second submission.
+In contrast to previous exercises, there is no possibility for a continuous update until the project demo.
 
 \subsection{Note}
 We assume a general knowledge of model checking and its purpose, as well as basis of logics,
@@ -486,7 +483,8 @@ The following formula does not hold for the TS:
 With this extension, you are required to extend the modelling power of MiniCheck targeting 
 software verification. While TS are good for expressing hardware models, they may be too low-level 
 to model software programs. To help the user of your version of MiniCheck, we will implement an 
-automated translation procedure for MINI$^{--}$ programs into TS. MINI$^{--}$ is a flattened version of the programming language MINI of the other project assignment of this course. In the following, we detail this version of MINI, called MINI$^{--}$, which is even smaller that MINI, and then present how to translate a MINI$^{--}$ program into an equivalent Transition System.
+automated translation procedure for MINI$^{--}$ programs into TS. MINI$^{--}$ is a flattened version of the programming language MINI whose syntax
+is given in the annex document to this assignment. In the following, we detail this version of MINI, called MINI$^{--}$, which is even smaller that MINI, and then present how to translate a MINI$^{--}$ program into an equivalent Transition System.
 
 \subsection{Informal Description}
 This section informally describes the core of the MINI programming language, only covering the language core.
