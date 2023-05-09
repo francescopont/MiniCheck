@@ -256,7 +256,7 @@ A well defined CTL formula is a CTL state formula.
 
 In addition, we introduce the following \emph{derived} Boolean operators for state formulae: 
 \begin{align*}
-    &\; \Phi_1 \lor \Phi_2 \equiv \neg (\neg \Phi_1 \land \Phi_2) \\
+    &\; \Phi_1 \lor \Phi_2 \equiv \neg (\neg \Phi_1 \land \neg \Phi_2) \\
     &\; \Phi_1 \rightarrow \Phi_2 \equiv \neg \Phi_1 \lor \Phi_2 \\
     &\; \Phi_1 \leftrightarrow  \Phi_2 \equiv (\Phi_1 \rightarrow \Phi_2) \land (\Phi_2 \rightarrow \Phi_1) \\
     &\; \Phi_1 \oplus  \Phi_2 \equiv (\Phi_1 \land \neg \Phi_2) \lor (\Phi_2 \land \neg \Phi_1)\\
@@ -290,12 +290,12 @@ CTL state formulae $\Phi, \Psi$, CTL path formula $\varphi$,
 the semantics of CTL is defined in terms of the following satisfaction relation $\vDash$ (pronounced ``satisfies") for state $s$. 
 $s \vDash \Phi$ if and only if $\Phi$ holds in $s$.
 \begin{align*}
-     & \sigma \vDash \text{true} & \\
-     & \sigma \vDash a &\; \text{ iff } & a \in L(s) \\ 
-     & \sigma \vDash \neg \Phi &\; \text{ iff } & \text{not } s \vDash \Phi \\
-     & \sigma \vDash \Phi \land \Psi & \text{ iff }&  (s \vDash \Phi) \text{ and } (s \vDash \Psi) \\
-     & \sigma \vDash \exists \, \varphi & \text{ iff } & \pi \vDash \varphi \text{ for some } \pi \in Paths(s) \\ 
-     & \sigma \vDash \forall \, \varphi & \text{ iff } & \pi \vDash \varphi \text{ for all } \pi \in Paths(s) \\ 
+     & s \vDash \text{true} & \\
+     & s \vDash a &\; \text{ iff } & a \in L(s) \\ 
+     & s \vDash \neg \Phi &\; \text{ iff } & \text{not } s \vDash \Phi \\
+     & s \vDash \Phi \land \Psi & \text{ iff }&  (s \vDash \Phi) \text{ and } (s \vDash \Psi) \\
+     & s \vDash \exists \, \varphi & \text{ iff } & \pi \vDash \varphi \text{ for some } \pi \in Paths(s) \\ 
+     & s \vDash \forall \, \varphi & \text{ iff } & \pi \vDash \varphi \text{ for all } \pi \in Paths(s) \\ 
 \end{align*}
 
 Given a path $\pi$, $\vDash$ is defined for path formulae as follows: 
@@ -428,7 +428,7 @@ To compute $Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big)$ and $Sat(\exists \llgl
     \begin{algorithmic}[1]
         \State T := $Sat(\Phi)$; (* compute the greatest fixpoint *)
         \While { $\{ s \in T \mid Post(s) \cap T = \varnothing \} \neq \varnothing$ }
-            \State $ T := T \cup \{ s \in T \mid Post(s) \cap T = \varnothing \} $;
+            \State $ T := T \setminus \{ s \in T \mid Post(s) \cap T = \varnothing \} $;
         \EndWhile
     \State return T;
     \end{algorithmic}
@@ -471,11 +471,11 @@ The following formulae hold for this TS (note, $\tau$ denotes an internal transi
 \begin{itemize}
     \item $\{ \forall \lleven  \text{pay} \}$ := every path will eventually return to the initial state, which is labelled with ``pay'';
     \item $\{ \exists \lleven \text{ soda} \}$ := it exists a path which eventually reaches the granting of a soda;
-    \item $\{ \exists \llglob \big(\text{ select } \implies  (\forall \lnext \text{ soda })\big) \}$ := it exists a path such that all selections are followed by the granting of a soda;
 \end{itemize}
-The following formula does not hold for the TS:
+The following formula do not hold for the TS:
 \begin{itemize}
     \item $\{ \forall (\lleven \text{ soda}) \}$ := every path with eventually reach the granting of a soda. This is not true, because the path which always selects the beer is feasible, and violates the specification.
+    \item $\{ \exists \llglob \big(\text{ select } \implies  (\forall \lnext \text{ soda })\big) \}$ := it exists a path such that, every time a selection is encountered, all paths starting from it release a soda. This does not hold because of Tuwel Discussion ''MiniCheck Aufgabenstellung''. Thanks to Jan M\"uller for pointing this out.
 \end{itemize}
 
 \section{Extension 1 - Parsing MINI$^{--}$ Programs (100 P)}
