@@ -371,7 +371,8 @@ The following algorithm sketches the procedure.
         \If{$\phi$ contains state subformulae}
             \State // for children nodes $\psi_1, \psi_2$ of the parse tree of $\phi$
             \State $Sat(\psi_1) = SatFun(\psi_1)$; $Sat(\psi_2) = SatFun(\psi_2)$ 
-            \State combine $Sat(\psi_1), Sat(\psi_2)$ depending on the operator of $\phi$ ($\land, \exists\lnext, \exists\mathbin{\mathcal{U}}, \exists\llglob$).
+            \State combine $Sat(\psi_1), Sat(\psi_2)$ depending on the operator of $\phi$ ($\land, \exists\lnext, \exists\mathbin{\mathcal{U}}, \exists\llglob$)
+            \State // see the characterization below
         \Else
             \State compute directly the set $Sat(\phi)$.
         \EndIf
@@ -382,7 +383,11 @@ The following algorithm sketches the procedure.
 \end{algorithm}
 
 \subsubsection*{Characterization of $Sat(\cdot)$ for CTL formulae in ENF}
-We now formally define the set $Sat(\cdot)$ for every formula, possibly depending on the satisfaction set of subformulae. Let TS $ = (S, Act, \rightarrow, I, AP, L)$ be a transition system without terminal states. For all CTL formulae $\Phi$, $\Psi$ over $AP$ it holds:
+We now formally define the set $Sat(\cdot)$ for every formula, 
+possibly being the combination of the satisfaction sets of subformulae. 
+Let TS $ = (S, Act, \rightarrow, I, AP, L)$ be a transition system without terminal states. 
+For all CTL formulae $\Phi$, $\Psi$ over $AP$ it holds:
+%\todo[inline]{align this definition}
 \begin{eqnarray*}
     & Sat(\text{true})          & := S \\
     & Sat(a)                    & := \{ s \in S \mid a \in L(s) \}, \text{ for any a } \in AP \\ 
@@ -418,8 +423,6 @@ To compute $Sat\big(\exists (\lluntil{\Phi}{\Psi}) \big)$ and $Sat(\exists \llgl
     \State return T;
     \end{algorithmic}
 \end{algorithm}
-\subsubsection{Resources}
-\cite[Paragraph 6.4]{BaKa}
 
 \begin{algorithm}[H]
     \caption{Computation of the satisfaction set for Existential Always formulae}
@@ -487,19 +490,19 @@ automated translation procedure for MINI$^{--}$ programs into TS. MINI$^{--}$ is
 is given in the annex document to this assignment. In the following, we detail this version of MINI, called MINI$^{--}$, which is even smaller that MINI, and then present how to translate a MINI$^{--}$ program into an equivalent Transition System.
 
 \subsection{Informal Description}
-This section informally describes the core of the MINI programming language, only covering the language core.
+This section informally describes the core of the MINI$^{--}$ programming language, only covering the language core.
 
-MINI is a procedural programming language. The syntax and semantics of MINI are inspired by the \href{https://en.wikipedia.org/wiki/C_(programming_language)}{programming language C}.
+MINI$^{--}$ is a procedural programming language. The syntax and semantics of MINI$^{--}$ are inspired by the \href{https://en.wikipedia.org/wiki/C_(programming_language)}{programming language C}.
 
-All code is contained in a single procedure \code{main} and variables are of the same type, namely the boolean type (Haskell type \code{Bool}). This means that the type of the variables is not explicitly specified in MINI. Variables are not required to be declared before definition.
+All code is contained in a single procedure \code{main} and variables are of the same type, namely the boolean type (Haskell type \code{Bool}). This means that the type of the variables is not explicitly specified in MINI$^{--}$. Variables are not required to be declared before definition.
 
-The procedure \code{main} implements an impure function, where input/output functionality \textbf{is  included in the core of MINI}. Procedure \code{main} takes a defined set of named variables and returns a result. The last statement of the procedure must be a \code{return} statement and no other \code{return} statement can occur in the procedure. In contrast to common programming languages, \code{return} statements in MINI are syntactically restricted to return the value of a single variable instead of a general expression.
+The procedure \code{main} implements an impure function, where input/output functionality \textbf{is  included in the core of MINI$^{--}$}. Procedure \code{main} takes a defined set of named variables and returns a result. The last statement of the procedure must be a \code{return} statement and no other \code{return} statement can occur in the procedure. In contrast to common programming languages, \code{return} statements in MINI$^{--}$ are syntactically restricted to return the value of a single variable instead of a general expression.
 
 The \code{if} statement is defined as in C. It executes either the first or optionally the second block.
 
 It is not necessary to declare variables before usage, however, it is necessary to define their value before usage, i.e.~a variable must be initialised before it can be used in boolean expressions.
 
-Regarding the variables in the argument lists, you need to consider all possible combinations of assignments of values for them, as we will see shortly with the definition of the semantics of a MINI program.
+Regarding the variables in the argument lists, you need to consider all possible combinations of assignments of values for them, as we will see shortly with the definition of the semantics of a MINI$^{--}$ program.
 
 Modern programming languages usually have a way to interact with a user via terminal or file system. We consider two statements: one that prints a boolean and one that reads a boolean value.
 We will see that, while these statements are a major issue for the interpreter, and it's hard to define their semantics in terms of a pure evaluation function, in the model checking problem they can be treated just as a source of non-determinism, which is already there in the type of TS we are using.
@@ -534,13 +537,13 @@ digit :=& \ \texttt{0} \ | \ \ldots \ | \ \texttt{9}
 Additional whitespace is allowed everywhere except within identifier names, integer literals, the binary comparison operators, and the keywords (\code{procedure}, \code{return}, \code{if}, \code{else}, \code{while}).
 
 \subsection{Semantics}
-We define now the semantics of a MINI program $P$ in terms of a Transition System, through the so-called \textbf{structural operational semantics (SOS)}. With this semantics, we mimic the step-by-step execution of the program through the transition relation of a Transition System. We have to follow the inference rules of the SOS to construct the state set and the transition relation of the corresponding TS.
+We define now the semantics of a MINI$^{--}$ program $P$ in terms of a Transition System, through the so-called \textbf{structural operational semantics (SOS)}. With this semantics, we mimic the step-by-step execution of the program through the transition relation of a Transition System. We have to follow the inference rules of the SOS to construct the state set and the transition relation of the corresponding TS.
 
 A state of the TS corresponds to the current program counter (i.e., the next instruction to be executed), and the current valuation of all the already occurred program variables.
 Formally, a state is given by $\langle P, \mathbf{\gamma} \rangle$, where program $P$ is just viewed as a sequence of statements (i.e., the remaining program to be executed). 
 
 \subsubsection{The set of initial states}
-The set of initial state of a Transition System $I$ is composed by all possible combinations of initial boolean values for the set of arguments of the MINI program $P$. This can be represented in set notation by $2^{arg(P)}$, where $arg$ is the set of arguments of $P$. Informally a subset of $arg$ contains all and only the variables that are evaluated to true in the current evaluation. The set of initial states is then defined as:
+The set of initial state of a Transition System $I$ is composed by all possible combinations of initial boolean values for the set of arguments of the MINI$^{--}$ program $P$. This can be represented in set notation by $2^{arg(P)}$, where $arg$ is the set of arguments of $P$. Informally a subset of $arg$ contains all and only the variables that are evaluated to true in the current evaluation. The set of initial states is then defined as:
 \begin{align*}
     I := \{ \langle P, \mathbf{\gamma} \rangle \mid \mathbf{\gamma} \in 2^{arg(P)} \}
 \end{align*}
@@ -564,10 +567,11 @@ We use the notation $\mathbf{\gamma}\{x \mapsto v\}$ to denote the state that is
 The model checker aborts the verification of invalid programs. A program is invalid if a variable $x$ is not defined but used in an expression, which, in our semantics, corresponds to the fact that we are not able to establish, given an expression $Expr$ over program variables which includes $x$, if $\mathbf{\gamma} \vDash Expr$, because there is no value for $x$ saved in $\mathbf{\gamma}$.
 
 \subsubsection*{A Note about terminal states}
-The last rule has been added due to a technical problem. While MINI programs are guaranteed to terminate for any input, the Transition Systems we have considered so far are defined over infinite runs, and require that there are no terminal states, i.e.~that every state has at least one outgoing edge. To accommodate the two formalisms, we introduce a self loop in the final state of the program, which induces the required infinite run in the Transition System.
+The last rule has been added due to a technical problem. While MINI$^{--}$ programs are guaranteed to terminate for any input, the Transition Systems we have considered so far are defined over infinite runs, and require that there are no terminal states, i.e.~that every state has at least one outgoing edge. To accommodate the two formalisms, we introduce a self loop in the final state of the program, which induces the required infinite run in the Transition System.
 
 \subsection{Examples}
-
+%\todo[inline]{This examples do not reflect the syntax of MINI-- because of the the presence of integer values}
+%\todo[inline]{Add the corresponding transition systems of the examples would be extremely beneficial}
 A procedure calculating the difference of two numbers:
 \begin{lstlisting}
 procedure main(a, b) {
@@ -724,7 +728,7 @@ The program should be able to understand the following flags:
 \begin{itemize}
 \item On \code{-h}/\code{--help}, a help message should be displayed, explaining how the program can be invoked correctly.
 \item On \code{--ts}, the input transition system should be parsed for correctness of the syntax of the input file, but no formula is verified on it.
-\item On \code{--extensions}, a list of supported MINI extensions is printed.
+\item On \code{--extensions}, a list of supported MINI$^{--}$ extensions is printed.
 \item Other flags as you see appropriate. (optional, not graded)
 \end{itemize}
 
