@@ -11,10 +11,10 @@
 % generic packages needed for math and logic symbols
 \usepackage{amssymb}
 \usepackage{stmaryrd}
-\usepackage{wasysym}
 \usepackage{mathrsfs}
 \usepackage{array}
-\usepackage{xcolor}
+
+\usepackage{mathabx}
 
 %% for logical symbols 
 \input{macros.tex}
@@ -33,9 +33,15 @@
     citecolor=black
 }
 
+
+
 %to list code in the document
 \usepackage{listings}
 \usepackage{xcolor}
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+}
 
 %% bibliography management
 \usepackage[backend=biber,style=numeric,sorting=ydnt]{biblatex}
@@ -70,14 +76,16 @@
 \large
 \begin{center}
   {\Large \textbf{185.A05 Advanced Functional Programming SS 24}}  \\ [1ex] 
-            Thursday, 04/05/2023 \\
+            Tuesday, 30/04/2024 \\
                {\Large \textbf{Assignment 5}} \\[.5ex]
               {\Large \textbf{Model Checking Project: MiniCheck}} \\[.5ex]
                  \textbf{All Chapters}  \\ [.75ex]
            \textbf{Topic:} Building a CTL Model Checker plus Implementing a Choice of Modelling/Verification Extensions  \\[1ex]
-          \textbf{Submission deadline:} Friday, 9th June 2023, noon (no continuous update)  \\ [0.5ex]
+          \textbf{Submission deadline:} Monday, 10th June 2023, noon (no continuous update)  \\ [0.5ex]
           \textbf{Contact:} prof. Jens Knoop, jens.knoop@tuwien.ac.at, \\
                             Francesco Pontiggia, francesco.pontiggia@tuwien.ac.at \\
+                            Dominik Leko, dominik.leko@tuwien.ac.at \\
+                            Tim Dirr, tim.dirr@tuwien.ac.at
                      (In case of need, this deadline will be extended (details posted via TUWEL))
 \end{center}
 
@@ -130,21 +138,21 @@ There will be a Q\&A session where help will be provided in case there are troub
 The date will be announced via TUWEL news.
 
 \section{Grading}
-
 The preliminary programming tasks with two parsers at its core (cf.~Section \ref{subsec-ts} and \ref{subsec-ctl}), +
 the verification module (cf.~Section \ref{subsec:mc}) and the test suite (cf.~Section \ref{subsec-testsuite}) 
 of MiniCheck are mandatory. 
-Implementing this core awards up to 200 points. The project presentation will be worth up to 100 points. 
+Implementing this core awards up to 275 points.
 To gain more points on top of the aforementioned, you can choose from some modelling 
 and verification extensions of the MiniCheck tool (cf.~Section \ref{sec:ext1} and \ref{sec:ext2}) 
-and the bonus task (cf.~Section \ref{sec-bonus}).
-
-For a positive evaluation of this project at least 200 points are required. 
-A positive grade on the project is necessary in order to receive a positive grade in this course. 
+and the bonus task (cf.~Section \ref{sec-bonus}). 
+At most 400 points are awarded for the project implementation.
+The project presentation (Demo) will be worth up to 200 points. 
 
 The total points for the project are calculated by adding up the points on the core, 
-the selected extensions and the presentation. A positive grade on the core itself is \textit{not} required. 
-At most 300 points are awarded for the project implementation.
+the selected extensions and the presentation (for a maximum of 600 points).
+For a positive evaluation of this project at least 300 points are required. 
+A positive grade on the project is necessary in order to receive a positive grade in this course.
+A positive grade on the core itself is \textit{not} required. 
 
 In contrast to previous exercises, there is no possibility for a continuous update until the project demo.
 
@@ -161,7 +169,7 @@ This includes also:
 See, e.g., \cite{BaKa} for deeper background details (a PDF version is available on the 
 \href{https://github.com/francescopont/MiniCheck.git}{Github repository}).
 
-\section{MiniCheck Core (200 P)}
+\section{MiniCheck Core (275 P)}
 
 Model Checking consists of formally and exhaustively verifying a formula expressing some property
 on all the possible executions of a particular type of automata (the \emph{model}). 
@@ -415,8 +423,7 @@ The following algorithm sketches the procedure.
 \end{algorithm}
 
 \subsubsection*{Characterization of $Sat(\cdot)$ for CTL formulae in ENF}
-We now formally define the set $Sat(\cdot)$ for every formula, 
-possibly being the combination of the satisfaction sets of subformulae. 
+We now formally define the set $Sat(\cdot)$ for every formula.
 Let TS $ = (S, Act, \rightarrow, I, AP, L)$ be a transition system without terminal states. 
 For all CTL formulae $\Phi$, $\Psi$ over $AP$ it holds:
 \begin{eqnarray*}
@@ -509,35 +516,50 @@ The following formulae hold for this TS (note, $\tau$ denotes an internal transi
 The following formula do not hold for the TS:
 \begin{itemize}
     \item $\{ \forall (\lleven \text{ soda}) \}$ := every path with eventually reach the granting of a soda. This is not true, because the path which always selects the beer is feasible, and violates the specification.
-    \item $\{ \exists \llglob \big(\text{ select } \implies  (\forall \lnext \text{ soda })\big) \}$ := it exists a path such that, every time a selection is encountered, all paths starting from it release a soda. 
+    \item $\{ \exists \llglob \big(\text{ select } \implies  (\forall \lnext \text{ soda })\big) \}$ := 
+    it exists a path such that, every time a selection is encountered, all paths starting from it release a soda. 
             This does not hold.
 \end{itemize}
 
-\section{Extension 1 - Parsing MINI$^{--}$ Programs (100 P)}
+\clearpage
+\section{Extension 1 - Parsing MINI$^{--}$ Programs (125 P)}
 \label{sec:ext1}
 With this extension, you are required to extend the modelling power of MiniCheck targeting 
 software verification. While TS are good for expressing hardware models, they may be too low-level 
 to model software programs. To help the user of your version of MiniCheck, we will implement an 
-automated translation procedure for MINI$^{--}$ programs into TS. MINI$^{--}$ is a flattened version of the programming language MINI whose syntax
-is given in the annex document to this assignment. In the following, we detail this version of MINI, called MINI$^{--}$, which is even smaller that MINI, and then present how to translate a MINI$^{--}$ program into an equivalent Transition System.
+automated translation procedure for programs written in a toy programming language, MINI$^{--}$, into TS.
 
 \subsection{Informal Description}
-This section informally describes the core of the MINI$^{--}$ programming language, only covering the language core.
+This section informally describes the core of the MINI$^{--}$ programming language, 
+only covering the language core.
 
-MINI$^{--}$ is a procedural programming language. The syntax and semantics of MINI$^{--}$ are inspired by the \href{https://en.wikipedia.org/wiki/C_(programming_language)}{programming language C}.
+MINI$^{--}$ is a procedural programming language. 
+The syntax and semantics of MINI$^{--}$ are inspired by the \href{https://en.wikipedia.org/wiki/C_(programming_language)}{programming language C}.
 
-All code is contained in a single procedure \code{main} and variables are of the same type, namely the boolean type (Haskell type \code{Bool}). This means that the type of the variables is not explicitly specified in MINI$^{--}$. Variables are not required to be declared before definition.
+All code is contained in a single procedure \code{main} and variables are of the same type, 
+namely the boolean type. This means that the type of the variables is not explicitly specified in MINI$^{--}$. 
+Variables are not required to be declared before definition.
+However, it is necessary to define their value before usage, 
+i.e.~a variable must be initialised before it can be used in boolean expressions.
 
-The procedure \code{main} implements an impure function, where input/output functionality \textbf{is  included in the core of MINI$^{--}$}. Procedure \code{main} takes a defined set of named variables and returns a result. The last statement of the procedure must be a \code{return} statement and no other \code{return} statement can occur in the procedure. In contrast to common programming languages, \code{return} statements in MINI$^{--}$ are syntactically restricted to return the value of a single variable instead of a general expression.
+The procedure \code{main} implements an impure function, 
+where input/output functionality \textbf{is  included in the core of MINI$^{--}$}. 
+Procedure \code{main} takes a defined set of named variables and returns a result. 
+Regarding the variables in the argument lists, 
+you need to consider all possible combinations of assignments of values for them.
+
+The last statement of the procedure must be a \code{return} statement and no other \code{return} statement can occur in the procedure. 
+In contrast to common programming languages, \code{return} statements in MINI$^{--}$ 
+are syntactically restricted to return the value of a single variable instead of a general expression.
 
 The \code{if} statement is defined as in C. It executes either the first or optionally the second block.
 
-It is not necessary to declare variables before usage, however, it is necessary to define their value before usage, i.e.~a variable must be initialised before it can be used in boolean expressions.
-
-Regarding the variables in the argument lists, you need to consider all possible combinations of assignments of values for them, as we will see shortly with the definition of the semantics of a MINI$^{--}$ program.
-
-Modern programming languages usually have a way to interact with a user via terminal or file system. We consider two statements: one that prints a boolean and one that reads a boolean value.
-We will see that, while these statements are a major issue for the interpreter, and it's hard to define their semantics in terms of a pure evaluation function, in the model checking problem they can be treated just as a source of non-determinism, which is already there in the type of TS we are using.
+Modern programming languages usually have a way to interact with a user via terminal or file system. 
+We consider two statements: one that prints a boolean and one that reads a boolean value.
+While these statements are a major issue for the interpreter, 
+and it's hard to define their semantics in terms of a pure evaluation function, 
+in the model checking problem they can be treated just as a source of non-determinism, 
+which is already there in the type of TS we are using.
 
 \subsection{Syntax}
 
@@ -569,82 +591,112 @@ digit :=& \ \texttt{0} \ | \ \ldots \ | \ \texttt{9}
 Additional whitespace is allowed everywhere except within identifier names, integer literals, the binary comparison operators, and the keywords (\code{procedure}, \code{return}, \code{if}, \code{else}, \code{while}).
 
 \subsection{Semantics}
-We define now the semantics of a MINI$^{--}$ program $P$ in terms of a Transition System, through the so-called \textbf{structural operational semantics (SOS)}. With this semantics, we mimic the step-by-step execution of the program through the transition relation of a Transition System. We have to follow the inference rules of the SOS to construct the state set and the transition relation of the corresponding TS.
+We define now the semantics of a MINI$^{--}$ program $P$ in terms of a Transition System, 
+through the so-called \textbf{structural operational semantics (SOS)}. 
+With this semantics, we mimic the step-by-step execution of the program 
+through the transition relation of a Transition System. 
+We follow the inference rules of the SOS to construct 
+the state set and the transition relation of the corresponding TS.
 
-A state of the TS corresponds to the current program counter (i.e., the next instruction to be executed), and the current valuation of all the already occurred program variables.
-Formally, a state is given by $\langle P, \mathbf{\gamma} \rangle$, where program $P$ is just viewed as a sequence of statements (i.e., the remaining program to be executed). 
+A state of the TS corresponds to the current program counter (i.e., the next instruction to be executed), 
+and the current valuation of all the already occurred program variables $\gamma$.
+Formally, a state is given by $\langle P, \mathbf{\gamma} \rangle$, where program $P$ is just 
+viewed as a sequence of statements.
 
 \subsubsection{The set of initial states}
-The set of initial state of a Transition System $I$ is composed by all possible combinations of initial boolean values for the set of arguments of the MINI$^{--}$ program $P$. This can be represented in set notation by $2^{arg(P)}$, where $arg$ is the set of arguments of $P$. Informally a subset of $arg$ contains all and only the variables that are evaluated to true in the current evaluation. The set of initial states is then defined as:
+The set of initial state of a Transition System $I$ is composed by all possible combinations 
+of initial boolean values for the set of arguments of the MINI$^{--}$ program $P$. 
+This can be represented in set notation by $2^{arg(P)}$, where $arg$ is the set of arguments of $P$. 
+A subset of $arg$ contains all and only the variables that are evaluated to true in the current evaluation. 
+The set of initial states is then defined as:
 \begin{align*}
     I := \{ \langle P, \mathbf{\gamma} \rangle \mid \mathbf{\gamma} \in 2^{arg(P)} \}
 \end{align*}
 
 \subsubsection{The Transition Relation}
-The transition relation is then defined by the following transition rules, where the symbol $\downarrow$ indicates a state where there is no more program to parse.
+The transition relation is then defined by the following transition rules, 
+where the symbol $\downarrow$ indicates a state where there is no more program to evaluate.
 \begin{align*}
-    &\; \frac{\mathbf{\gamma} \vDash \varphi}{\langle \text{ if }(\varphi)\text{\{B\}; P}, \mathbf{\gamma} \rangle \rightarrow \langle \text{ B;P }, \mathbf{\gamma} \rangle} \\ \\
-    &\; \frac{\mathbf{\gamma} \nvDash \varphi}{\langle \text{ if }(\varphi)\text{\{B\};P}, \mathbf{\gamma} \rangle \rightarrow \langle \text{P}, \mathbf{\gamma} \rangle} \\ \\
-    &\; \frac{\mathbf{\gamma} \vDash \varphi}{\langle \text{ if }(\varphi)\text{\{B\} else \{E\}; P}, \mathbf{\gamma} \rangle \rightarrow \langle \text{ B;P }, \mathbf{\gamma} \rangle} \\ \\
-    &\; \frac{\mathbf{\gamma} \nvDash \varphi}{\langle \text{ if }(\varphi)\text{\{B\} else \{E\}; P}, \mathbf{\gamma} \rangle \rightarrow \langle \text{ E;P }, \mathbf{\gamma} \rangle} \\ \\
-    &\;\frac{\mathbf{\gamma} \vDash Expr \mapsto v}{\langle x:=Expr;P , \mathbf{\gamma} \rangle \rightarrow \langle P,\mathbf{\gamma}[x \mapsto v] \rangle } \\  \\
-    &\;\frac{}{\langle print\_bool(expr);P , \mathbf{\gamma}\rangle \rightarrow \langle P, \mathbf{\gamma} \rangle} \\  \\
-    &\;\frac{}{\langle x=read\_bool;P , \mathbf{\gamma} \rangle \rightarrow \langle P,\mathbf{\gamma}[x \mapsto T] \rangle \text{ and } \langle x=read\_bool;P , \mathbf{\gamma} \rangle \rightarrow \langle P,\mathbf{\gamma}[x \mapsto F] \rangle}\\ \\
-    &\;\frac{}{\langle return \text{ } x; \mathbf{\gamma} \rangle \rightarrow \langle \downarrow, \mathbf{\gamma} \rangle} \\ \\
-    &\;\frac{}{\langle \downarrow, \mathbf{\gamma} \rangle \rightarrow \langle \downarrow, \mathbf{\gamma} \rangle} \\
+    &\; \frac{\varphi \notin \gamma}{\langle \text{ if }(\varphi)\text{\{B\}; P}, \mathbf{\gamma} \rangle \rightarrow \lightning} &&\;
+      \frac{\varphi \notin \gamma}{\langle \text{ if }(\varphi)\text{\{B\} else \{E\}; P}, \mathbf{\gamma} \rangle \rightarrow \lightning} \\ \\
+    &\; \frac{\mathbf{\gamma} \vDash \varphi}{\langle \text{ if }(\varphi)\text{\{B\}; P}, \mathbf{\gamma} \rangle \rightarrow \langle \text{ B;P }, \mathbf{\gamma} \rangle} &&\;
+      \frac{\mathbf{\gamma} \nvDash \varphi}{\langle \text{ if }(\varphi)\text{\{B\};P}, \mathbf{\gamma} \rangle \rightarrow \langle \text{P}, \mathbf{\gamma} \rangle} \\ \\
+    &\; \frac{\mathbf{\gamma} \vDash \varphi}{\langle \text{ if }(\varphi)\text{\{B\} else \{E\}; P}, \mathbf{\gamma} \rangle \rightarrow \langle \text{ B;P }, \mathbf{\gamma} \rangle} &&\;
+      \frac{\mathbf{\gamma} \nvDash \varphi}{\langle \text{ if }(\varphi)\text{\{B\} else \{E\}; P}, \mathbf{\gamma} \rangle \rightarrow \langle \text{ E;P }, \mathbf{\gamma} \rangle} \\ \\
+    &\;\frac{\mathbf{\gamma} \vDash (Expr \mapsto v)}{\langle x:=Expr;P , \, \mathbf{\gamma} \rangle \rightarrow \langle P,\mathbf{\gamma}[x \mapsto v] \rangle } &&\;
+      \frac{Expr \notin \gamma}{\langle x:=Expr;P , \, \mathbf{\gamma} \rangle \rightarrow \lightning } \\  \\
+    &\;\frac{Expr \in \gamma}{\langle print\_bool(expr);P , \mathbf{\gamma}\rangle \rightarrow \langle P, \mathbf{\gamma} \rangle} &&\;
+       \frac{Expr \notin \gamma}{\langle print\_bool(Expr);P , \mathbf{\gamma}\rangle \rightarrow \lightning} \\  \\
+    &\;\frac{x \notin \gamma}{\langle x=read\_bool;P , \mathbf{\gamma} \rangle \rightarrow \lightning} &&\; \\ \\
+    &\;\frac{x \in \gamma}{\langle x=read\_bool;P , \mathbf{\gamma} \rangle \rightarrow \langle P,\mathbf{\gamma}[x \mapsto T] \rangle} &&\;
+       \frac{x \in \gamma}{\langle x=read\_bool;P , \mathbf{\gamma} \rangle \rightarrow \langle P,\mathbf{\gamma}[x \mapsto F] \rangle }\\ \\
+    &\;\frac{x \in \gamma}{\langle return \text{ } x; \mathbf{\gamma} \rangle \rightarrow \langle \downarrow, \mathbf{\gamma} \rangle} &&\;
+       \frac{x \notin \gamma}{\langle return \text{ } x; \mathbf{\gamma} \rangle \rightarrow \lightning} \\ \\
+    &\;\frac{}{\langle \downarrow, \mathbf{\gamma} \rangle \rightarrow \langle \downarrow, \mathbf{\gamma} \rangle} &&\;
+       \frac{}{\langle \lightning, \mathbf{\gamma} \rangle \rightarrow \langle \lightning, \mathbf{\gamma} \rangle} \\
 \end{align*}
 
-We use the notation $\mathbf{\gamma}\{x \mapsto v\}$ to denote the state that is obtained when updating the value of the variable $x$ to $v$. 
+We use the notation $\mathbf{\gamma}[x \mapsto v]$ to denote the state that is obtained 
+when updating the value of the variable $x$ to $v$. 
 
-The model checker aborts the verification of invalid programs. A program is invalid if a variable $x$ is not defined but used in an expression, which, in our semantics, corresponds to the fact that we are not able to establish, given an expression $Expr$ over program variables which includes $x$, if $\mathbf{\gamma} \vDash Expr$, because there is no value for $x$ saved in $\mathbf{\gamma}$.
+A statement is invalid if it uses a variable $x$ that has not been defined before.
+We use notation $x \notin \gamma$ to indicate that variable $x$ has no binding in 
+the current state. With a slight abuse of notation, we use $Expr \notin \gamma$ or $\varphi \notin \gamma$
+to indicate that a variable with no binding occurs in $Expr$ or $\varphi$. An invalid statement makes the
+whole program invalid. This is represented in our semantics with a transition 
+to an error state indicated with $\lightning$.
 
-\subsubsection*{A Note about terminal states}
-The last rule has been added due to a technical problem. 
-While MINI$^{--}$ programs are guaranteed to terminate for any input, 
+\subsubsection*{Note about terminal states}
+The last two rules have been added due to a technical problem. 
+While MINI$^{--}$ programs are guaranteed to terminate for any input or to reach the error state, 
 the Transition Systems we have considered have infinite runs, 
 and require that there are no terminal states, i.e.~that every state has at least one outgoing edge. 
-To accommodate the two formalisms, we introduce a self loop in the final state of the program, 
+To accommodate the two formalisms, we introduce a self loop in the final states of the program, 
 which induces the required infinite runs in the Transition System.
 
-\subsection{Examples}
-%\todo[inline]{This examples do not reflect the syntax of MINI-- because of the the presence of integer values}
-%\todo[inline]{Add the corresponding transition systems of the examples would be extremely beneficial}
-A procedure calculating the difference of two numbers:
-\begin{lstlisting}
+\clearpage
+\subsection{Example}
+A procedure over two inputs:
+\begin{lstlisting}[escapeinside={(*}{*)}]
 procedure main(a, b) {
-    c = a - b;
-    return c;
+    if (a) { c = (* $\neg$ *)(b); 
+    } else { c = b; }
+    d = c (* $\oplus$ *) true;
+    return d;
 }
 \end{lstlisting}
+The corresponding Transition System, where initial states are at the top: 
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale = 0.20]{pictures/model.png}
+    \end{center}
+  \end{figure}
 
-A procedure calculating the minimum of two numbers:
-\begin{lstlisting}
-procedure main(a, b) {
-    if (a < b) {
-        c = a;
-    } else {
-        c = b;
-    }
-    return c;
-}
-\end{lstlisting}
+\clearpage
 
-
-\section{Extension 2 - Bounded LTL Model Checking (100 P)}
+\section{Extension 2 - Bounded LTL Model Checking (125 P)}
 \label{sec:ext2}
-With this extension, you are required to extend the verification power of MiniCheck targeting a different class of properties, 
+With this extension, you are required to extend the verification power of MiniCheck 
+targeting a different class of properties, 
 namely, those expressed through the so called \emph{Linear Temporal Logic}. 
 LTL is path-based, i.e. LTL formula are interpreted only in terms of sequences of states, i.e. paths. 
-Due to this, LTL embraces a \emph{linear} view of the time, 
-which means that at each moment of time there is only one possible successor state (the next one in the path) 
-and thus each moment has a unique possible future. 
-The interpretation of a LTL formula $\varphi$ over a state $s$ requires that $\varphi$ is satisfied by all possible computations (paths) that start in $s$.
+Differently with respect to CTL, LTL embraces a \emph{linear} view of the time.
+The interpretation of a LTL formula $\varphi$ over a state $s$ requires that $\varphi$ 
+is satisfied by \textbf{all} possible computations (paths) that start in $s$. There are no 
+path quantifiers $\exists$ or $\forall$.
 
-The full LTL algorithm requires some more involved formalisms, hence we will not deal with it. Instead, we will implement a \textbf{bounded} model checking algorithm. To do so, we enumerate all possible paths that start from initial states with size up to a certain size $k$ (where the bound $k$ is provided by the user), and verify only these paths against the input formula. This means that the overall procedure is not complete, i.e. we are not formally guaranteeing that the formula holds for the TS at hand. However, this approach has some advantages: it is simple to apply and it is much more scalable. 
+The full LTL algorithm requires some more involved formalisms, hence we will not deal with it. 
+Instead, we will implement a \textbf{bounded} model checking algorithm. 
+To do so, we enumerate all possible paths that start from initial states with size up to a certain size $k$ 
+(where the bound $k$ is provided by the user), and verify only these paths against the input formula. 
+This means that the overall procedure is not complete, i.e. we are not formally guaranteeing that the formula holds for the TS at hand. 
+However, this approach has some advantages: it is simple to apply and it is much more scalable. 
 
-As modelling formalism, we will use the same as the core modules, i.e. Transition Systems without terminal states, and where Actions are irrelevant.
+As modelling formalism, we will use the same as the core modules, 
+i.e. Transition Systems without terminal states, and where Actions are irrelevant.
 
-In the following, we will provide some information about LTL, and then present the tasks to be implemented with this extension.
+In the following, we will provide some information about LTL, 
+and then present the tasks to be implemented with this extension.
 
 \subsection*{Syntax}
 Given a set $AP$ of atomic propositions, with $a \in AP$, LTL formulae follow the following syntax: 
@@ -668,14 +720,15 @@ You are required to handle all and only these operators.
 \subsection*{Semantics}
 We define the semantics of LTL formulae over a trace of a Transition System ($S, Act, \rightarrow, I, AP, L$). 
 Given an infinite sequence of states $s_0s_1s_2 \dots$ (i.e.~a path) of the TS, 
-its trace is just the induced infinite sequence of atomic propositions $ \sigma = L(s_0)L(s_1) \dots \in (2^{AP})^{\omega}$.
-Let $\sigma = A_0A_1A_2 \dots$ be an infinite word over $2^{AP}$. Then $\vDash$ is defined by:
+its trace is just the induced infinite sequence of atomic propositions $ \sigma = L(s_0)L(s_1) \dots$.
+Let $\sigma = A_0A_1A_2 \dots$ be an infinite sequence of labels. We use notation $\sigma [i \dots j]$
+to indicate the subsequence $A_i \dots A_j$. Then $\vDash$ is defined by:
 \begin{align*}
     &\; \sigma \vDash \text{ true} \\
     &\; \sigma \vDash a \text{ iff } a \in A_0 \\
     &\; \sigma \vDash \varphi_1 \land \varphi_2 \text{ iff } \sigma \vDash \varphi_1 \text{ and } \sigma \vDash \varphi_2 \\
     &\; \sigma \vDash \neg \varphi \text{ iff } \sigma \nvDash \varphi \\
-    &\; \sigma \vDash \lnext{\varphi} \text{ iff } \sigma [A_1 \dots] \dots \vDash \varphi \\
+    &\; \sigma \vDash \lnext{\varphi} \text{ iff } \sigma [1 \dots] (= A_1 \dots) \vDash \varphi \\
     &\; \sigma \vDash \lluntil{\varphi_1}{\varphi_2} \text{ iff } \exists j \geqslant 0 .  \sigma [ j \dots ] \vDash \varphi_2 \text{ and } \sigma [ i \dots ] \vDash \varPhi_1 \text{, for all } 0 \leqslant  i < j
 \end{align*}
 An LTL formula $\varphi$ holds in a path $\pi$ if it holds for $trace(\pi)$. 
@@ -695,7 +748,7 @@ Likewise, we update the semantics of the other operators for coherence.
     &\; \sigma \vDash_k a \text{ iff } a \in A_0 \\
     &\; \sigma \vDash_k \varphi_1 \land \varphi_2 \text{ iff } \sigma \vDash_k \varphi_1 \text{ and } \sigma \vDash \varphi_2 \\
     &\; \sigma \vDash_k \neg \varphi \text{ iff } \sigma \nvDash_k \varphi \\
-    &\; \sigma \vDash_k \lnext{\varphi} \text{ iff } \sigma [1 \dots (k-1)] = A_1 \dots A_{k-1} \vDash_k \varphi \\
+    &\; \sigma \vDash_k \lnext{\varphi} \text{ iff } \sigma [1 \dots (k-1)] ( = A_1 \dots A_{k-1}) \vDash_k \varphi \\
 \end{align*}
 
 \color{red}
@@ -737,6 +790,12 @@ We now outline the algorithm to be implemented. With a naive description, it is 
 
 \subsection*{Resources}
 \cite[Paragraph 5.1 (in particular 5.1.1 and 5.1.2)]{BaKa}
+
+\subsection*{A note for those interested}
+CTL and LTL in general are \emph{uncomparable}, which means that there are some CTL formulae that
+cannot be expressed in LTL, and viceversa. However, after having fixed 
+a finite bound $k$, our bounded version LTL$_{k}$ could be entirely expressed in CTL, and hence this 
+extension is not adding any expressivity to the tool.
 
 \section{Bonus Task: Project Management (25 P)}
 \label{sec-bonus}
