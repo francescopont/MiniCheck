@@ -78,12 +78,12 @@
 \large
 \begin{center}
   {\Large \textbf{185.A05 Advanced Functional Programming SS 25}}  \\ [1ex] 
-            Monday, 05.05.2025 \\
-               {\Large \textbf{Assignment 5}} \\[.5ex]
+            Tuesday, 6 May 2025 \\
+               {\Large \textbf{Assignment 4}} \\[.5ex]
               {\Large \textbf{Model Checking Project: MiniCheck}} \\[.5ex]
                  \textbf{All Chapters}  \\ [.75ex]
            \textbf{Topic:} Building a CTL Model Checker plus Implementing a Modelling extension \\[1ex]
-          \textbf{Submission deadline:} Friday, 13th June 2023, noon (no continuous update)  \\ [0.5ex]
+          \textbf{Submission deadline:} Friday, 13th June 2025, noon (no continuous update)  \\ [0.5ex]
           \textbf{Contact:} prof. Jens Knoop, jens.knoop@tuwien.ac.at, \\
                             Francesco Pontiggia, francesco.pontiggia@tuwien.ac.at \\
                             Lou Elah Süsslin, lou.suesslin@student.tuwien.ac.at \\
@@ -120,7 +120,7 @@ Additionally, there is a bonus task allowing to achieve even more than
 the full amount of points for the project (cf.~Section \ref{sec-bonus}). 
 \bigskip
 
-In Section \ref{sec:artefacts}, the submission artefacts are detailed. In contrast to previous assignments, you are not asked to implement functions with given signatures. 
+In Section \ref{sec:artefacts}, the submission artefacts are detailed. In contrast to previous assignments, you are not asked to implement functions with (often) given signatures. 
 Instead, the functionality of the executed program is evaluated. 
 You will have to design your own function signatures and data types and decide 
 which data structures you want to use.
@@ -153,7 +153,7 @@ A positive grade on the core itself is \textit{not} required.
 In contrast to previous exercises, there is no possibility for a continuous update until the project demo.
 
 \subsection{Note}
-We do not assume a in-depth knowledge of model checking and its purpose, nor logics.
+We do not assume an in-depth knowledge of model checking and its purpose, nor logics.
 Some previous knowledge in related fields helps, but it's not mandatory,
 as all used formalisms are introduced. 
 This includes also:
@@ -168,7 +168,7 @@ See, e.g., \cite{BaKa} for deeper background details.
 
 Model Checking consists of formally and exhaustively verifying a formula expressing some property
 on all the possible executions of a particular type of automata (the \emph{model}). 
-The model might be an abstract representation of an hardware component, or even a 
+The model might be an abstract representation of a hardware component, or even a 
 piece of software.
 In the following, we provide some preliminary information 
 about the type of the formalisms you are required to support, 
@@ -260,7 +260,7 @@ and $\luntilbase$ (pronounced ``until''). These temporal modalities allow to con
 that can be visited in a run from an initial state. They are operators part of the so called Computation Tree Logic (CTL).
 Note here the difference between temporal ordering and timing: in temporal logics time is seen as a discrete sequence of time instances 
 (or snapshots, if you like), and not as a continuous variable. With these formalism, 
-you do not specify something like "A for two seconds, then B for one second", but rather "A, and in the next time instance B".
+you do not specify something like ``A for two seconds, then B for one second", but rather ``A, and in the next time instance B".
 
 In particular, CTL (differently with respect to some other logics, e.g. LTL) is based on a \emph{branching} notion of time. 
 Branching time refers to the fact that every step in a path of the TS is associated with a choice between 
@@ -332,7 +332,7 @@ These operators can be derived from the base operators through the following
     &\; \exists \llglob \Phi \equiv \neg\forall \lleven \neg\Phi \\ 
     &\; \forall \llglob \Phi \equiv \neg\exists \lleven \neg\Phi \\
 \end{align*}
-We give an information notion of some of these formulae. The left hand side of the first equivalence means \saye{there exists a path such that at some point $\Phi$ holds}.
+We give an informal notion of some of these formulae. The left hand side of the first equivalence means \saye{there exists a path such that at some point $\Phi$ holds}.
 The right hand side of the second equivalence means \saye{on all paths, anything holds until $\Phi$ holds}.
 
 You are required to handle also derived operators.
@@ -343,7 +343,7 @@ with only base operators through these equivalence rules, you will have implemen
 derived operators for free (even if performances will suffer).
 
 \color{red}
-\subsubsection*{Task}
+\subsubsection*{Task 2}
 Define:
 \begin{itemize}
     \item a suitable plain-text representation of CTL formulae such that formulae written in this representation can be passed as input to your tool, and 
@@ -555,7 +555,7 @@ until a fixpoint is reached. The algorithm makes use of an additional counter ve
 \cite[Paragraph 6.4]{BaKa}
 
 \color{red}
-\subsubsection*{Task}
+\subsubsection*{Task 3}
 \begin{itemize}
     \item Define a suitable data type reperesentation of CTL formulae in Existential Normal Form.
     \item Implement a function converting CTL formulae not in ENF into ones in ENF.
@@ -772,7 +772,7 @@ because of the leftmost path. Also $\forall \lleven return$ holds.
 
 \clearpage
 
-\section{Bonus Task: Project Management (25 P)}
+\section{Bonus Task: Project Management (50 P)}
 \label{sec-bonus}
 
 There is more to a successful project than just writing code. 
